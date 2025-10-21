@@ -1,5 +1,6 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import stylistic from '@stylistic/eslint-plugin'
+import typescriptParser from '@typescript-eslint/parser'
 import perfectionist from 'eslint-plugin-perfectionist'
 import { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -9,77 +10,6 @@ const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "parser": "@typescript-eslint/parser",
-      "plugins": ["@typescript-eslint"],
-      "extends": ["plugin:@typescript-eslint/recommended"],
-      "rules": {
-        "@typescript-eslint/array-type": [2, { "default": "array" }],
-        "@typescript-eslint/consistent-type-definitions": [2, "interface"],
-        "@typescript-eslint/consistent-type-exports": 2,
-        "@typescript-eslint/consistent-type-imports": [
-          2,
-          {
-            "prefer": "type-imports",
-            "fixStyle": "separate-type-imports"
-          }
-        ],
-        "@typescript-eslint/explicit-module-boundary-types": 0,
-        "@typescript-eslint/member-ordering": 2,
-        "@typescript-eslint/no-unnecessary-boolean-literal-compare": 2,
-        "@typescript-eslint/no-unnecessary-condition": 2,
-        "@typescript-eslint/no-unnecessary-type-arguments": 2,
-        "@typescript-eslint/no-unnecessary-type-assertion": 2,
-        "@typescript-eslint/non-nullable-type-assertion-style": 2,
-        "@typescript-eslint/no-restricted-types": [
-          2,
-          {
-            "types": {
-              "FC": "Useless and has some drawbacks use ({ ...}: IProps) => instead",
-              "React.FC": "Useless and has some drawbacks use ({ ...}: IProps) => instead",
-              "React.FunctionComponent": "Useless and has some drawbacks use ({ ...}: IProps) => instead",
-              "React.FunctionalComponent": "Useless and has some drawbacks use ({ ...}: IProps) => instead"
-            }
-          }
-        ],
-        "@typescript-eslint/prefer-nullish-coalescing": 2,
-        "@typescript-eslint/prefer-optional-chain": 2,
-        "@typescript-eslint/prefer-string-starts-ends-with": 2,
-        "@typescript-eslint/no-unused-vars": [
-          "error",
-          {
-            "argsIgnorePattern": "^_",
-            "varsIgnorePattern": "^_"
-          }
-        ],
-        "@typescript-eslint/naming-convention": [
-          "error",
-          {
-            "selector": "interface",
-            "format": ["PascalCase"],
-            "prefix": ["I"]
-          },
-          {
-            "selector": "typeAlias",
-            "format": ["PascalCase"]
-          }
-        ],
-        "react/prop-types": "off",
-        "react-refresh/only-export-components": [
-          "warn",
-          { "allowConstantExport": true }
-        ]
-      }
-    },
-    {
-      "files": ["src/app/**/*.tsx"],
-      "rules": {
-        "react-refresh/only-export-components": [0]
-      }
-    },
-  ]
 });
 
 const eslintConfig = [
@@ -132,7 +62,7 @@ const eslintConfig = [
       "jsx-a11y/media-has-caption": 0,
       "line-comment-position": [2, { "position": "above" }],
       "max-statements": [2, { "max": 10 }],
-      "new-cap": 2,
+      "new-cap": [2, { "capIsNewExceptions": ["Inter"] }],
       "no-array-constructor": 2,
       "no-bitwise": 2,
       "no-caller": 2,
@@ -258,6 +188,74 @@ const eslintConfig = [
       "unicorn/prevent-abbreviations": 0,
       "use-isnan": 2,
       "perfectionist/sort-imports": 2
+    }
+  },
+  // TypeScript-specific rules for .ts and .tsx files
+  {
+    files: ["*.ts", "*.tsx"],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: __dirname,
+      },
+    },
+    plugins: {
+      '@stylistic': stylistic,
+      'perfectionist': perfectionist,
+    },
+    rules: {
+      "@typescript-eslint/array-type": [2, { "default": "array" }],
+      "@typescript-eslint/consistent-type-definitions": [2, "interface"],
+      "@typescript-eslint/consistent-type-exports": 2,
+      "@typescript-eslint/consistent-type-imports": [
+        2,
+        {
+          "prefer": "type-imports",
+          "fixStyle": "separate-type-imports"
+        }
+      ],
+      "@typescript-eslint/explicit-module-boundary-types": 0,
+      "@typescript-eslint/member-ordering": 2,
+      "@typescript-eslint/no-unnecessary-boolean-literal-compare": 2,
+      "@typescript-eslint/no-unnecessary-condition": 2,
+      "@typescript-eslint/no-unnecessary-type-arguments": 2,
+      "@typescript-eslint/no-unnecessary-type-assertion": 2,
+      "@typescript-eslint/non-nullable-type-assertion-style": 2,
+      "@typescript-eslint/no-restricted-types": [
+        2,
+        {
+          "types": {
+            "FC": "Useless and has some drawbacks use ({ ...}: IProps) => instead",
+            "React.FC": "Useless and has some drawbacks use ({ ...}: IProps) => instead",
+            "React.FunctionComponent": "Useless and has some drawbacks use ({ ...}: IProps) => instead",
+            "React.FunctionalComponent": "Useless and has some drawbacks use ({ ...}: IProps) => instead"
+          }
+        }
+      ],
+      "@typescript-eslint/prefer-nullish-coalescing": 2,
+      "@typescript-eslint/prefer-optional-chain": 2,
+      "@typescript-eslint/prefer-string-starts-ends-with": 2,
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          "selector": "interface",
+          "format": ["PascalCase"],
+          "prefix": ["I"]
+        },
+        {
+          "selector": "typeAlias",
+          "format": ["PascalCase"]
+        }
+      ],
+      "react/prop-types": "off"
+    }
+  },
+  // App-specific rules for src/app/**/*.tsx files
+  {
+    files: ["src/app/**/*.tsx"],
+    rules: {
+      "react-refresh/only-export-components": [0]
     }
   }
 ];
