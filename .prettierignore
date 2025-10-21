@@ -1,0 +1,6 @@
+# Ignore artifacts:
+out
+public
+.next
+prismicio-types.d.ts
+bun.lock
