@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ReactNode } from 'react'
 
+import { ApolloWrapper } from './ApolloWrapper'
 import './globals.css'
 
 const inter = Inter({
@@ -23,7 +24,7 @@ const RootLayout = ({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+        <ApolloWrapper>{children}</ApolloWrapper>
       </body>
     </html>
   )
