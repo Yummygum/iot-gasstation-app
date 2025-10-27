@@ -10,10 +10,14 @@ import {
 } from '@/components/ui/empty'
 import Header from '@/components/ui/header'
 
+import TokenBalance from '../components/TokenBalance'
+
 const Dashboard = () => {
   return (
     <main className="container mx-auto px-4 py-8">
       <Header />
+
+      <TokenBalance />
 
       <Empty>
         <EmptyHeader>
