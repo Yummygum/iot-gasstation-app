@@ -1,3 +1,5 @@
+'use client'
+import { useSubscription } from '@apollo/client/react'
 import { UserIcon } from 'lucide-react'
 
 import {
@@ -8,17 +10,13 @@ import {
   EmptyMedia,
   EmptyTitle
 } from '@/components/ui/empty'
-import Header from '@/components/ui/header'
-
-import TokenBalance from '../components/TokenBalance'
+import TOKEN_BALANCE_SUBSCRIPTION from '@/lib/api/subscriptions/tokenBalance'
 
 const Dashboard = () => {
+  const { data } = useSubscription(TOKEN_BALANCE_SUBSCRIPTION)
+
   return (
-    <main className="container mx-auto px-4 py-8">
-      <Header />
-
-      <TokenBalance />
-
+    <div className="w-full px-4 py-8">
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -28,10 +26,10 @@ const Dashboard = () => {
           <EmptyDescription>No clients found</EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <button>Add client</button>
+          <pre>Data: {JSON.stringify(data, null, 2)}</pre>
         </EmptyContent>
       </Empty>
-    </main>
+    </div>
   )
 }
 

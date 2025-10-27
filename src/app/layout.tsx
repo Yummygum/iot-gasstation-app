@@ -1,14 +1,11 @@
 import type { Metadata } from 'next'
 
 import { Inter } from 'next/font/google'
-import { ReactNode } from 'react'
+import { CSSProperties, ReactNode } from 'react'
 
-import { AppSidebar } from '@/components/Sidebar'
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger
-} from '@/components/ui/sidebar'
+import AppSidebar from '@/components/Sidebar/AppSidebar'
+import SiteHeader from '@/components/SiteHeader'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 import { ApolloWrapper } from './ApolloWrapper'
 import './globals.css'
@@ -32,16 +29,23 @@ const RootLayout = ({
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
         <ApolloWrapper>
-          <SidebarProvider>
-            <AppSidebar />
+          <SidebarProvider
+            style={
+              {
+                '--sidebar-width': '288px',
+                '--header-height': 'calc(var(--spacing) * 12)'
+              } as CSSProperties
+            }
+          >
+            <AppSidebar variant="inset" />
+
             <SidebarInset>
-              <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-                <div className="flex items-center gap-2 px-4">
-                  <SidebarTrigger className="-ml-1" />
+              <SiteHeader />
+
+              <div className="flex flex-1 flex-col">
+                <div className="@container/main flex flex-1 flex-col gap-2">
+                  {children}
                 </div>
-              </header>
-              <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-                {children}
               </div>
             </SidebarInset>
           </SidebarProvider>

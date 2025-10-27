@@ -16,6 +16,16 @@
     "plugins": [
       {
         "name": "next"
+      },
+      {
+        "name": "gql.tada/ts-plugin",
+        "schema": {
+          "url": "https://sponsoring.dev2.impierce.com/graphql",
+          "headers": {
+            "X-API-Key": ""
+          }
+        },
+        "tadaOutputLocation": "./src/lib/api/graphql-env.d.ts"
       }
     ],
     "paths": {
