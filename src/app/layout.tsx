@@ -6,6 +6,7 @@ import { CSSProperties, ReactNode } from 'react'
 import AppSidebar from '@/components/Sidebar/AppSidebar'
 import SiteHeader from '@/components/SiteHeader'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/sonner'
 
 import { ApolloWrapper } from './ApolloWrapper'
 import './globals.css'
@@ -50,6 +51,8 @@ const RootLayout = ({
             </SidebarInset>
           </SidebarProvider>
         </ApolloWrapper>
+
+        <Toaster />
       </body>
     </html>
   )
