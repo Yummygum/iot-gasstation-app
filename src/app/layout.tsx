@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google'
 import { CSSProperties, ReactNode } from 'react'
 
 import AppSidebar from '@/components/Sidebar/AppSidebar'
-import SiteHeader from '@/components/SiteHeader'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -41,8 +40,6 @@ const RootLayout = ({
             <AppSidebar variant="inset" />
 
             <SidebarInset>
-              <SiteHeader />
-
               <div className="flex flex-1 flex-col">
                 <div className="@container/main flex flex-1 flex-col gap-2">
                   {children}
