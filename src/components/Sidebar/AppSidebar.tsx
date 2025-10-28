@@ -73,19 +73,19 @@ const AppSidebar = ({ ...props }: ComponentProps<typeof Sidebar>) => {
         <SidebarHeaderContent />
       </SidebarHeader>
 
-      <SidebarContent className="flex flex-col gap-2">
+      <SidebarContent>
         <SidebarSearchForm />
 
-        <SidebarSeparator />
+        <SidebarSeparator className="m-0" />
 
         {menu.map((menuItem) => (
           <Collapsible
-            className="group/collapsible overflow-hidden"
+            className="group/collapsible"
             key={menuItem.title}
             role="group"
             title={menuItem.title}
           >
-            <SidebarGroup className="group-data-[state=open]/collapsible:bg-sidebar-accent rounded-md p-2">
+            <SidebarGroup className="group-data-[state=open]/collapsible:bg-sidebar-accent rounded-md">
               <SidebarGroupLabel
                 asChild
                 className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"

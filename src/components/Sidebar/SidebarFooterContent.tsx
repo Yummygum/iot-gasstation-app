@@ -1,22 +1,29 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
+import { BellDotIcon } from 'lucide-react'
 
 import TokenBalance from '../TokenBalance'
+import { Button } from '../ui/button'
+import { Separator } from '../ui/separator'
 
 const SidebarFooterContent = () => {
   return (
-    <div className="flex items-center py-2">
-      <div className="flex gap-2">
-        <Avatar className="border-muted size-14 overflow-hidden rounded-sm">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+    <>
+      <footer className="flex w-full flex-col items-center gap-8">
+        <Separator />
 
-        <div className="flex flex-col gap-1 text-sm">
-          <p>James Clear</p>
-          <TokenBalance />
+        <div className="flex w-full items-center justify-between gap-2">
+          <div className="flex flex-col gap-1 text-sm">
+            <p className="text-md font-medium">James Clear</p>
+            <TokenBalance />
+          </div>
+
+          <div className="flex gap-2">
+            <Button size="icon-lg" variant="ghost">
+              <BellDotIcon className="size-6" />
+            </Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </footer>
+    </>
   )
 }
 

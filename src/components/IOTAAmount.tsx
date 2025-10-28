@@ -37,7 +37,7 @@ const IOTAAmount = ({
   return (
     <span
       className={cn(
-        'middle inline-flex flex-wrap items-baseline font-medium',
+        'middle text-primary inline-flex flex-wrap items-baseline font-medium',
         sizeMap[size].class,
         className
       )}

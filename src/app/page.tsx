@@ -1,36 +1,22 @@
 'use client'
 import { useSubscription } from '@apollo/client/react'
-import { UserIcon } from 'lucide-react'
 
+import ExampleChart from '@/components/Chart/ExampleChart'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle
-} from '@/components/ui/empty'
+import { Item } from '@/components/ui/item'
 import TOKEN_BALANCE_SUBSCRIPTION from '@/lib/api/subscriptions/tokenBalance'
 
 const Dashboard = () => {
   const { data } = useSubscription(TOKEN_BALANCE_SUBSCRIPTION)
 
   return (
-    <div className="w-full px-4 py-8">
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <UserIcon />
-          </EmptyMedia>
-          <EmptyTitle>No clients</EmptyTitle>
-          <EmptyDescription>No clients found</EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <pre>Data: {JSON.stringify(data, null, 2)}</pre>
-        </EmptyContent>
-      </Empty>
+    <div className="flex w-full flex-col gap-10 px-4 py-8">
+      <Item variant="outline">
+        <pre>Data: {JSON.stringify(data, null, 2)}</pre>
+      </Item>
+
+      <ExampleChart />
 
       <NotifyItem
         className="max-w-md"
