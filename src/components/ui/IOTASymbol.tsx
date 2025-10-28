@@ -1,10 +1,18 @@
 import Image from 'next/image'
 
-const IOTASymbol = ({ size = 32 }: { size?: number }) => {
+import { cn } from '@/lib/utils'
+
+const IOTASymbol = ({
+  className,
+  size = 32
+}: {
+  className?: string
+  size?: number
+}) => {
   return (
     <Image
       alt="IOTA Symbol"
-      className="inline-block dark:invert"
+      className={cn('inline-block dark:invert', className)}
       height={size}
       src="/iota-symbol.svg"
       width={size}
