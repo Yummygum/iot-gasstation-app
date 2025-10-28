@@ -2,14 +2,14 @@ import Image from 'next/image'
 
 const SidebarHeaderContent = () => {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center justify-center">
       <Image
-        alt="Built with IOTA logo"
+        alt="IOTA Gas Station logo"
         className="dark:invert"
         height={38}
         priority
-        src="/built-with-iota.svg"
-        width={180}
+        src="/iota-gas-logo.svg"
+        width={120}
       />
     </div>
   )
