@@ -19,6 +19,7 @@ const linkOptions: BaseHttpLink.Shared.Options = {
   // headers: {
   //   'X-API-Key': NEXT_PUBLIC_API_KEY ?? ''
   // },
+  uri: NEXT_PUBLIC_API_URL ?? 'https://sponsoring.dev2.impierce.com/graphql',
   fetchOptions: {
     ...(NODE_ENV === 'development' ? { cache: 'no-store' } : {})
   }
@@ -41,8 +42,8 @@ function makeClient() {
 
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: NEXT_PUBLIC_WS_URL,
-      ...linkOptions
+      ...linkOptions,
+      url: NEXT_PUBLIC_WS_URL
     })
   )
 
