@@ -1,22 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as React from 'react'
 
-interface SlotProps extends React.HTMLAttributes<HTMLElement> {
-  children?: React.ReactNode
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  HTMLAttributes,
+  isValidElement,
+  ReactElement,
+  ReactNode
+} from 'react'
+
+interface SlotProps extends HTMLAttributes<HTMLElement> {
+  children?: ReactNode
 }
 
-const Slot = React.forwardRef<HTMLElement, SlotProps>(
+const Slot = forwardRef<HTMLElement, SlotProps>(
   ({ children, ...props }, ref) => {
-    if (React.isValidElement(children)) {
-      return React.cloneElement(children as React.ReactElement<any>, {
+    if (isValidElement(children)) {
+      return cloneElement(children as ReactElement<any>, {
         ...props,
         ...(children.props || {}),
         ref
       })
     }
 
-    if (React.Children.count(children) > 1) {
-      React.Children.only(null)
+    if (Children.count(children) > 1) {
+      Children.only(null)
     }
 
     return null
