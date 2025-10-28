@@ -46,6 +46,7 @@ const Button = ({
   ...props
 }: ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {
+    // eslint-disable-next-line react/boolean-prop-naming
     asChild?: boolean
   }) => {
   const Comp = asChild ? Slot : 'button'

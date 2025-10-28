@@ -60,6 +60,7 @@ const Item = ({
   asChild = false,
   ...props
 }: ComponentProps<'div'> &
+  // eslint-disable-next-line react/boolean-prop-naming
   VariantProps<typeof itemVariants> & { asChild?: boolean }) => {
   const Comp = asChild ? Slot : 'div'
   return (
