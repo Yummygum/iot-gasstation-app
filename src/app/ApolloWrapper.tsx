@@ -12,19 +12,13 @@ import { OperationTypeNode } from 'graphql'
 import { createClient } from 'graphql-ws'
 import { PropsWithChildren } from 'react'
 
-const {
-  NEXT_PUBLIC_API_URL,
-  NEXT_PUBLIC_WS_URL,
-  NEXT_PUBLIC_API_KEY,
-  NODE_ENV
-} = process.env
+const { NEXT_PUBLIC_API_URL, NEXT_PUBLIC_WS_URL, NODE_ENV } = process.env
 
 // Shared options for the HTTP and WebSocket connections
 const linkOptions: BaseHttpLink.Shared.Options = {
-  headers: {
-    'X-API-Key': NEXT_PUBLIC_API_KEY ?? ''
-    // authToken: user.authToken
-  },
+  // headers: {
+  //   'X-API-Key': NEXT_PUBLIC_API_KEY ?? ''
+  // },
   fetchOptions: {
     ...(NODE_ENV === 'development' ? { cache: 'no-store' } : {})
   }
@@ -37,10 +31,6 @@ function makeClient() {
 
   if (!NEXT_PUBLIC_WS_URL) {
     throw new Error('NEXT_PUBLIC_WS_URL is not set')
-  }
-
-  if (!NEXT_PUBLIC_API_KEY) {
-    throw new Error('NEXT_PUBLIC_API_KEY is not set')
   }
 
   // Initialize the links for the HTTP and WebSocket connections
