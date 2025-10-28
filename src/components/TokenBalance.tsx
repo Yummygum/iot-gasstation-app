@@ -4,22 +4,21 @@ import { useSuspenseQuery } from '@apollo/client/react'
 
 import TOKEN_BALANCE from '@/lib/api/queries/tokenBalance'
 
-import IOTASymbol from './ui/IOTASymbol'
+import IOTAAmount from './IOTAAmount'
 
 interface ITokenBalanceProps {
   hasIOTAMark?: boolean
 }
 
-const TokenBalance = ({
-  hasIOTAMark: withIOTAMark = true
-}: ITokenBalanceProps) => {
+const TokenBalance = ({ hasIOTAMark = true }: ITokenBalanceProps) => {
   const { data } = useSuspenseQuery(TOKEN_BALANCE)
 
   return (
-    <span className="inline-flex flex-wrap items-center gap-1">
-      {withIOTAMark && <IOTASymbol size={32} />}
-      {data.tokenBalance}
-    </span>
+    <IOTAAmount
+      amount={data.tokenBalance}
+      hasIOTAMark={hasIOTAMark}
+      size="sm"
+    />
   )
 }
 
