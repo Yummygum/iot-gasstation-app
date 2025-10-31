@@ -6,7 +6,7 @@ interface IIOTAAmountProps {
   className?: string
   hasIOTAMark?: boolean
   amount: number
-  size?: 'xs' | 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
 const IOTAAmount = ({
@@ -31,6 +31,10 @@ const IOTAAmount = ({
     lg: {
       value: 24,
       class: 'text-lg gap-2'
+    },
+    xl: {
+      value: 28,
+      class: 'text-4xl gap-2.5'
     }
   }
 

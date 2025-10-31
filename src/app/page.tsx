@@ -1,7 +1,7 @@
 'use client'
 import { useSubscription } from '@apollo/client/react'
 
-import BudgetBar from '@/components/BudgetBar'
+import BudgetBar from '@/components/BudgetBar/BudgetBar'
 import ExampleChart from '@/components/Chart/ExampleChart'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
