@@ -2,9 +2,11 @@
 import { useSubscription } from '@apollo/client/react'
 
 import BudgetBar from '@/components/BudgetBar/BudgetBar'
+import ExampleBarChart from '@/components/Chart/ExampleBarChart'
 import ExampleChart from '@/components/Chart/ExampleChart'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
+import SpendingSummary from '@/components/SpendingSummary/SpendingSummary'
 import { Item } from '@/components/ui/item'
 import TOKEN_BALANCE_SUBSCRIPTION from '@/lib/api/subscriptions/tokenBalance'
 
@@ -14,12 +16,16 @@ const Dashboard = () => {
   return (
     <div className="flex w-full flex-col gap-10 px-4 py-8">
       <Item variant="outline">
-        <pre>Data: {JSON.stringify(data, null, 2)}</pre>
+        <div>Data: {JSON.stringify(data, null, 2)}</div>
       </Item>
 
       <BudgetBar />
 
       <ExampleChart />
+
+      <ExampleBarChart />
+
+      <SpendingSummary />
 
       <NotifyItem
         className="max-w-md"

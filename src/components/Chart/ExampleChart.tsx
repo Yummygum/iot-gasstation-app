@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { ComponentProps, useMemo, useState } from 'react'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
+import { twMerge } from 'tailwind-merge'
 
 import {
   ChartConfig,
@@ -130,7 +131,7 @@ const chartConfig = {
   }
 } satisfies ChartConfig
 
-const ExampleChart = () => {
+const ExampleChart = ({ className, ...props }: ComponentProps<'div'>) => {
   const [timeRangeDays, setTimeRangeDays] = useState(7)
 
   const filteredData = chartData.filter((item) => {
@@ -148,7 +149,7 @@ const ExampleChart = () => {
   }, [timeRangeDays])
 
   return (
-    <Item className="pt-0" variant="outline">
+    <Item className={twMerge('pt-0', className)} variant="outline" {...props}>
       <ItemHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <ItemTitle>Total gas spent</ItemTitle>
