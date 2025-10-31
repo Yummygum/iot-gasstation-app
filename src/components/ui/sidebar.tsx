@@ -154,7 +154,8 @@ const SidebarProvider = forwardRef<
         <TooltipProvider delayDuration={0}>
           <div
             className={cn(
-              'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full',
+              'group/sidebar-wrapper flex min-h-svh w-full',
+              '[background:linear-gradient(146deg,rgba(181,210,251,0.20)-0.5%,rgba(255,255,255,0.00)41.3%,rgba(163,189,251,0.50)77.12%)]',
               className
             )}
             ref={ref}
@@ -201,7 +202,7 @@ const Sidebar = forwardRef<
       return (
         <div
           className={cn(
-            'bg-sidebar text-sidebar-foreground flex h-full w-[var(--sidebar-width)] flex-col',
+            'text-sidebar-foreground flex h-full w-[var(--sidebar-width)] flex-col bg-linear-to-b from-blue-200/20 via-white/0 to-indigo-300/50',
             className
           )}
           ref={ref}
@@ -406,7 +407,7 @@ const SidebarSeparator = forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <Separator
-      className={cn('bg-sidebar-border mx-2 w-auto', className)}
+      className={cn('bg-sidebar-border/15 mx-2 w-auto', className)}
       data-sidebar="separator"
       ref={ref}
       {...props}

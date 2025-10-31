@@ -1,8 +1,9 @@
 'use client'
 
 import { AvatarFallback } from '@radix-ui/react-avatar'
-import { ChevronRight, Users } from 'lucide-react'
+import { HomeIcon } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ComponentProps } from 'react'
 
 import {
@@ -11,113 +12,113 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator
 } from '@/components/ui/sidebar'
 
-import { Avatar } from '../ui/avatar'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from '../ui/collapsible'
+import StatusIndicator from '../StatusIndicator'
+import { Avatar, AvatarImage } from '../ui/avatar'
+import { Button } from '../ui/button'
 import SidebarFooterContent from './SidebarFooterContent'
 import SidebarHeaderContent from './SidebarHeaderContent'
-import SidebarSearchForm from './SidebarSearchForm'
 
-const clientsMenu = [
+// TODO: replace with GQL typing
+interface Client {
+  id: string
+  title: string
+  imageUrl: string | null
+  status: 'ok' | 'error' | 'warning'
+}
+
+const clientsMenu: Client[] = [
   {
+    id: 'hogeschool-van-amsterdam',
     title: 'Hogeschool van Amsterdam',
-    url: '#',
-    icon: Users,
-    items: [
-      {
-        title: 'ASS',
-        url: '/client/ASS'
-      },
-      {
-        title: 'B&E',
-        url: '/client/B&E',
-        isActive: true
-      },
-      {
-        title: 'EDU',
-        url: '/client/EDU'
-      },
-      {
-        title: 'CMD',
-        url: '/client/CMD'
-      }
-    ]
+    status: 'ok',
+    imageUrl:
+      'https://www.emerce.nl/content/uploads/2017/06/Hogeschool_van_amsterdam_logo_svg.png'
+  },
+  {
+    id: 'impierce',
+    title: 'Impierce',
+    status: 'error',
+    imageUrl: null
   }
 ]
 
 const AppSidebar = ({ ...props }: ComponentProps<typeof Sidebar>) => {
+  const activeRoute = usePathname()
+  const isActive = (route: string) => activeRoute === route
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
         <SidebarHeaderContent />
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarSearchForm />
-
+      <SidebarContent className="gap-4">
         <SidebarSeparator className="m-0" />
 
-        <SidebarGroup>
-          <SidebarGroupContent className="flex flex-col gap-2">
-            <SidebarMenu>
-              <SidebarMenuItem className="flex items-center gap-2">
-                <Link href="/">Dashboard</Link>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
+        <SidebarGroup className="p-0">
+          <SidebarMenuItem>
+            <Button
+              asChild
+              className="flex items-center justify-start gap-2.5"
+              variant={isActive('/') ? 'ghostActive' : 'ghost'}
+            >
+              <Link href="/">
+                <HomeIcon />
+                <span>Dashboard</span>
+              </Link>
+            </Button>
+          </SidebarMenuItem>
         </SidebarGroup>
 
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel>Clients</SidebarGroupLabel>
-          {clientsMenu.map((menuItem) => (
-            <Collapsible
-              className="group/collapsible"
-              key={menuItem.title}
-              role="group"
-              title={menuItem.title}
-            >
-              <SidebarGroup className="group-data-[state=open]/collapsible:bg-sidebar-accent rounded-md">
-                <SidebarGroupLabel
-                  asChild
-                  className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
+        <SidebarGroup className="p-0">
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-3">
+              {clientsMenu.map((menuItem) => (
+                <SidebarMenuItem
+                  className="flex flex-col items-center gap-3"
+                  key={menuItem.id}
                 >
-                  <CollapsibleTrigger className="flex cursor-pointer items-center gap-2">
-                    <Avatar className="border-muted size-4 overflow-hidden rounded-full bg-blue-200">
-                      <AvatarFallback />
-                    </Avatar>
-                    <span className="w-full truncate text-left">
-                      {menuItem.title}
-                    </span>
-                    <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                  </CollapsibleTrigger>
-                </SidebarGroupLabel>
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {menuItem.items?.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                          <SidebarMenuButton asChild isActive={item.isActive}>
-                            <Link href={item.url}>{item.title}</Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              </SidebarGroup>
-            </Collapsible>
-          ))}
+                  <SidebarSeparator />
+
+                  <Button
+                    asChild
+                    className="flex items-center gap-2"
+                    variant={
+                      isActive(`/client/${menuItem.id}`)
+                        ? 'ghostActive'
+                        : 'ghost'
+                    }
+                  >
+                    <Link
+                      className="flex w-full items-center justify-between gap-2.5"
+                      href={`/client/${menuItem.id}`}
+                    >
+                      <span className="flex w-full items-center gap-2.5 truncate">
+                        <Avatar className="border-muted size-5 overflow-hidden rounded-sm bg-white">
+                          <AvatarImage
+                            alt={menuItem.title}
+                            src={menuItem.imageUrl ?? ''}
+                          />
+                          <AvatarFallback className="w-full text-center text-sm">
+                            {menuItem.title.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">{menuItem.title}</span>
+                      </span>
+
+                      <StatusIndicator status={menuItem.status} />
+                    </Link>
+                  </Button>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 

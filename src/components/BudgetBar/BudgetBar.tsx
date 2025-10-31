@@ -45,7 +45,7 @@ const BudgetBar = () => {
     <>
       <Dialog>
         <Item
-          className="rounded-2xl bg-linear-to-l from-sky-200/20 via-blue-200/20 to-indigo-300/20 p-8"
+          className="rounded-2xl p-8 [background:linear-gradient(89deg,rgba(198,230,251,0.20)1.28%,rgba(181,210,251,0.20)50.75%,rgba(163,189,251,0.20)100.22%)]"
           variant="muted"
         >
           <ItemContent className="flex h-full flex-row items-stretch gap-10">
