@@ -1,6 +1,7 @@
 'use client'
 import { useSubscription } from '@apollo/client/react'
 
+import BudgetBar from '@/components/BudgetBar'
 import ExampleChart from '@/components/Chart/ExampleChart'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
@@ -15,6 +16,8 @@ const Dashboard = () => {
       <Item variant="outline">
         <pre>Data: {JSON.stringify(data, null, 2)}</pre>
       </Item>
+
+      <BudgetBar />
 
       <ExampleChart />
 
