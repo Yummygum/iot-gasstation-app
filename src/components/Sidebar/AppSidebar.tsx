@@ -90,14 +90,14 @@ const AppSidebar = ({ ...props }: ComponentProps<typeof Sidebar>) => {
                     asChild
                     className="flex items-center gap-2"
                     variant={
-                      isActive(`/client/${menuItem.id}`)
+                      isActive(`/group/${menuItem.id}`)
                         ? 'ghostActive'
                         : 'ghost'
                     }
                   >
                     <Link
                       className="flex w-full items-center justify-between gap-2.5"
-                      href={`/client/${menuItem.id}`}
+                      href={`/group/${menuItem.id}`}
                     >
                       <span className="flex w-full items-center gap-2.5 truncate">
                         <Avatar className="border-muted size-5 overflow-hidden rounded-sm bg-white">

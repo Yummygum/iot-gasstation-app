@@ -2,7 +2,7 @@ import BudgetBar from '@/components/BudgetBar/BudgetBar'
 import GasChart from '@/components/Chart/GasChart'
 import ClientPageHeader from '@/components/ClientPageHeader'
 
-const ClientPage = () => {
+const GroupPage = () => {
   return (
     <div>
       <ClientPageHeader />
@@ -16,4 +16,4 @@ const ClientPage = () => {
   )
 }
 
-export default ClientPage
+export default GroupPage

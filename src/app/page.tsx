@@ -2,8 +2,6 @@
 import { useSubscription } from '@apollo/client/react'
 
 import BudgetBar from '@/components/BudgetBar/BudgetBar'
-import ExampleBarChart from '@/components/Chart/ExampleBarChart'
-import ExampleChart from '@/components/Chart/ExampleChart'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
 import SpendingSummary from '@/components/SpendingSummary/SpendingSummary'
@@ -20,10 +18,6 @@ const Dashboard = () => {
       </Item>
 
       <BudgetBar />
-
-      <ExampleChart />
-
-      <ExampleBarChart />
 
       <SpendingSummary />
 
