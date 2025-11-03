@@ -1,55 +1,36 @@
+'use client'
+import { useSuspenseQuery } from '@apollo/client/react'
+import { use } from 'react'
+
 import BudgetBar from '@/components/BudgetBar/BudgetBar'
 import GasChart from '@/components/Chart/GasChart'
-import ClientPageHeader from '@/components/GroupPageHeader'
-import { valueRenderer } from '@/components/ValueRenderer'
+import GroupPageHeader from '@/components/GroupPageHeader'
+import GET_GROUP from '@/lib/api/queries/getGroup'
 
-const GroupPage = () => {
+interface GroupPageProps {
+  params: Promise<{
+    id: string
+  }>
+}
+
+const GroupPage = ({ params }: GroupPageProps) => {
+  const { id } = use(params)
+
+  useSuspenseQuery(GET_GROUP, {
+    variables: {
+      groupId: id
+    }
+  })
+
   return (
-    <div className="relative gap-3">
-      <ClientPageHeader
-        description={`${valueRenderer(12712)} Total transactions`}
-        title="Hogeschool van Amsterdam"
-      />
+    <div>
+      <GroupPageHeader />
 
-      <section className="flex flex-col gap-5 p-6">
+      <section className="flex flex-col gap-10 p-6">
         <BudgetBar />
 
         <GasChart />
       </section>
-
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
     </div>
   )
 }

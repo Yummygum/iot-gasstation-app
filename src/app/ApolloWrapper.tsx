@@ -62,7 +62,16 @@ function makeClient() {
   )
 
   return new ApolloClient({
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        GroupDto: {
+          keyFields: ['groupId']
+        },
+        clientDto: {
+          keyFields: ['clientId']
+        }
+      }
+    }),
     link: splitLink
   })
 }
