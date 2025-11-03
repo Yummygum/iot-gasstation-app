@@ -1,7 +1,5 @@
 import { graphql, ResultOf, VariablesOf } from 'gql.tada'
 
-import BALANCE_FRAGMENT from '../fragments/balance'
-
 const GET_CLIENT = graphql(`
   query GetClient($clientId: UUID!) {
     getClient(clientId: $clientId) {
@@ -11,11 +9,9 @@ const GET_CLIENT = graphql(`
       name
       groupId
       walletAddress
-      ...BalanceFragment
+      balance
     }
   }
-
-  ${BALANCE_FRAGMENT}
 `)
 
 export type GetClientQuery = ResultOf<typeof GET_CLIENT>
