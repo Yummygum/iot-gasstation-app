@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 
 import { quickHash } from '@/lib/quickHash'
 
-import ValueRenderer from '../ValueRenderer'
+import { ValueRenderer } from '../ValueRenderer'
 
 const BudgetBarItem = ({
   title,

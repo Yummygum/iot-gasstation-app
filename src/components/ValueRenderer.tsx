@@ -6,6 +6,10 @@ import { LOCALE } from '@/lib/constants'
  * and strings are returned as is.
  */
 const ValueRenderer = ({ value }: { value: Date | number | string }) => {
+  return valueRenderer(value)
+}
+
+const valueRenderer = (value: Date | number | string) => {
   if (typeof value === 'number') {
     return value.toLocaleString(LOCALE)
   }
@@ -19,4 +23,4 @@ const ValueRenderer = ({ value }: { value: Date | number | string }) => {
   return value
 }
 
-export default ValueRenderer
+export { valueRenderer, ValueRenderer }
