@@ -1,5 +1,6 @@
 'use client'
 
+import { useMutation, useQuery } from '@apollo/client/react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,7 +14,12 @@ import {
   VisibilityState
 } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+
+import type {
+  RemoveClientMutationResult,
+  RemoveClientMutationVariables
+} from '@/lib/api/mutations/removeClient'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -33,51 +39,31 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import REMOVE_CLIENT_MUTATION from '@/lib/api/mutations/removeClient'
+import GET_CLIENT from '@/lib/api/queries/getClient'
+import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
+import { tableMeta } from '@/lib/utils'
 
 import IOTAAmount from '../IOTAAmount'
 import { ValueRenderer } from '../ValueRenderer'
 
-const data: Payment[] = [
-  {
-    id: 'm5gr84i9',
-    amount: 316,
-    name: 'ASR',
-    lastTransaction: new Date()
-  },
-  {
-    id: '3u1reuv4',
-    amount: 242,
-    name: 'CMD',
-    lastTransaction: new Date()
-  },
-  {
-    id: 'derv1ws0',
-    amount: 837,
-    name: 'B&E',
-    lastTransaction: new Date()
-  },
-  {
-    id: '5kma53ae',
-    amount: 874,
-    name: 'EDU',
-    lastTransaction: new Date()
-  },
-  {
-    id: 'bhqecj4p',
-    amount: 721,
-    name: 'CON',
-    lastTransaction: new Date()
-  }
-]
-
-export type Payment = {
+type ClientColumn = {
   id: string
-  amount: number
+  amount: number | null
   name: string
   lastTransaction: Date
 }
 
-export const columns: ColumnDef<Payment>[] = [
+type RemoveClientMutationFn = (_options?: {
+  variables: RemoveClientMutationVariables
+}) => Promise<{ data?: RemoveClientMutationResult }>
+
+type TableMeta = {
+  removeClient: RemoveClientMutationFn
+}
+const metaGetter = tableMeta<TableMeta>()
+
+const columns: ColumnDef<ClientColumn>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => {
@@ -141,13 +127,13 @@ export const columns: ColumnDef<Payment>[] = [
   {
     id: 'actions',
     enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original
+    cell: ({ row, table }) => {
+      const client = row.original
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="h-8 w-8 p-0" disabled variant="ghost">
+            <Button className="h-8 w-8 p-0" variant="ghost">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal />
             </Button>
@@ -155,13 +141,25 @@ export const columns: ColumnDef<Payment>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(client.id)}
             >
-              Copy payment ID
+              Copy client ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                const { removeClient } = metaGetter(table)
+
+                removeClient({
+                  variables: {
+                    clientId: client.id
+                  }
+                })
+              }}
+            >
+              Delete client
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -174,10 +172,30 @@ const ClientTable = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
-  //   const [timeRangeDays, setTimeRangeDays] = useState(7)
+
+  const { data: clients } = useQuery(GET_CLIENT_LIST)
+
+  const [removeClient] = useMutation(REMOVE_CLIENT_MUTATION, {
+    refetchQueries: [GET_CLIENT_LIST, GET_CLIENT]
+  })
+
+  const formattedData: ClientColumn[] = useMemo(() => {
+    // TODO: add missing fields
+    return (
+      clients?.getClientList.map((client) => ({
+        id: client.clientId,
+        amount: client.balance,
+        name: client.name,
+        // walletAddress: client.walletAddress,
+        // groupId: client.groupId,
+        // clientId: client.clientId,
+        lastTransaction: new Date()
+      })) ?? []
+    )
+  }, [clients])
 
   const table = useReactTable({
-    data,
+    data: formattedData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -192,6 +210,9 @@ const ClientTable = () => {
       columnFilters,
       columnVisibility,
       rowSelection
+    },
+    meta: {
+      removeClient
     }
   })
 
@@ -211,30 +232,6 @@ const ClientTable = () => {
             ''
           }
         />
-        {/* <Select
-          onValueChange={(selectedValue) =>
-            setTimeRangeDays(parseInt(selectedValue, 10))
-          }
-          value={String(timeRangeDays)}
-        >
-          <SelectTrigger
-            aria-label="Select a value"
-            className="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
-          >
-            <SelectValue placeholder="Last 90 days" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem className="rounded-lg" value="90">
-              Last 3 months
-            </SelectItem>
-            <SelectItem className="rounded-lg" value="30">
-              Last 30 days
-            </SelectItem>
-            <SelectItem className="rounded-lg" value="7">
-              Last 7 days
-            </SelectItem>
-          </SelectContent>
-        </Select> */}
       </div>
       <div className="overflow-hidden rounded-md border">
         <Table>

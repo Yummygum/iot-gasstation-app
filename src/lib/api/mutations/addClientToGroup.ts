@@ -1,4 +1,4 @@
-import { graphql, ResultOf, VariablesOf } from 'gql.tada'
+import { graphql, ResultOf, VariablesOf } from '../graphql'
 
 const ADD_CLIENT_TO_GROUP_MUTATION = graphql(`
   mutation AddClientToGroup($groupId: UUID!, $clientId: UUID!) {

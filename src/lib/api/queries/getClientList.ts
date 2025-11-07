@@ -1,9 +1,12 @@
-import { graphql, ResultOf } from 'gql.tada'
+import { graphql, ResultOf } from '../graphql'
 
 const GET_CLIENT_LIST = graphql(`
   query GetClientList {
     getClientList {
       name
+      walletAddress
+      balance
+      groupId
       clientId
     }
   }

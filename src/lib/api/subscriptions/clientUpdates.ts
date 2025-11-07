@@ -1,4 +1,4 @@
-import { graphql, ResultOf } from 'gql.tada'
+import { graphql, ResultOf } from '../graphql'
 
 const CLIENT_UPDATES_SUBSCRIPTION = graphql(`
   subscription GetClientUpdatesSubscription {

@@ -1,4 +1,4 @@
-import { graphql, ResultOf, VariablesOf } from 'gql.tada'
+import { graphql, ResultOf, VariablesOf } from '../graphql'
 
 const GET_GROUP = graphql(`
   query GetGroup($groupId: UUID!) {

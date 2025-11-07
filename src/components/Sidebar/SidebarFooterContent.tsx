@@ -12,7 +12,7 @@ const SidebarFooterContent = () => {
 
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex flex-col gap-1 text-sm">
-            <p className="text-md font-medium">James Clear</p>
+            <p className="text-md font-medium">Jelle Millenaar</p>
             <TokenBalance />
           </div>
 

@@ -1,21 +1,14 @@
 'use client'
-import { useSubscription } from '@apollo/client/react'
-
 import BudgetBar from '@/components/BudgetBar/BudgetBar'
+import DashboardHeader from '@/components/DashboardHeader'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
 import SpendingSummary from '@/components/SpendingSummary/SpendingSummary'
-import { Item } from '@/components/ui/item'
-import TOKEN_BALANCE_UPDATE_SUBSCRIPTION from '@/lib/api/subscriptions/tokenBalanceUpdates'
 
 const Dashboard = () => {
-  const { data } = useSubscription(TOKEN_BALANCE_UPDATE_SUBSCRIPTION)
-
   return (
     <div className="flex w-full flex-col gap-10 px-4 py-8">
-      <Item variant="outline">
-        <div>Data: {JSON.stringify(data, null, 2)}</div>
-      </Item>
+      <DashboardHeader />
 
       <BudgetBar />
 

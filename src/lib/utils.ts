@@ -1,5 +1,6 @@
 import type { ClassValue } from 'clsx'
 
+import { Table } from '@tanstack/react-table'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -15,3 +16,9 @@ export function parseNumber(input: string): number {
   const parsed = parseFloat(input.replace(',', '.'))
   return Number.isNaN(parsed) ? 0 : parsed
 }
+
+export const tableMeta =
+  <Meta extends object>() =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (table: Table<any>) =>
+    table.options.meta as Meta

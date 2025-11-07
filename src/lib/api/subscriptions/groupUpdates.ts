@@ -1,4 +1,4 @@
-import { graphql, ResultOf } from 'gql.tada'
+import { graphql, ResultOf } from '../graphql'
 
 export const GROUP_UPDATES_SUBSCRIPTION = graphql(`
   subscription GroupUpdatesSubscription {

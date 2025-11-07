@@ -1,9 +1,9 @@
 import { useFragment } from '@apollo/client/react'
-import { graphql } from 'gql.tada'
 import { PlusIcon, SettingsIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { Suspense } from 'react'
 
+import { graphql } from '../lib/api/graphql'
 import AddClientDialog from './AddClientDialog'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
@@ -19,12 +19,13 @@ const GROUP_FRAGMENT = graphql(`
 
 const GroupPageHeader = () => {
   const params = useParams()
+  const groupId = (params.id ?? '').toString()
 
   const { data } = useFragment({
     fragment: GROUP_FRAGMENT,
     from: {
       __typename: 'GroupDto',
-      groupId: params.id
+      groupId
     }
   })
 
@@ -50,7 +51,7 @@ const GroupPageHeader = () => {
           </p>
         </div>
 
-        <AddClientDialog>
+        <AddClientDialog groupId={groupId}>
           <DialogTrigger asChild>
             <Button variant="outline">
               <PlusIcon />

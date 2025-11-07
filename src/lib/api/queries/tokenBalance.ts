@@ -1,4 +1,4 @@
-import { graphql, ResultOf } from 'gql.tada'
+import { graphql, ResultOf } from '../graphql'
 
 const TOKEN_BALANCE = graphql(`
   query TokenBalance {

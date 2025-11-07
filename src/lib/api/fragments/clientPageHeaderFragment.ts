@@ -1,4 +1,4 @@
-import { graphql } from 'gql.tada'
+import { graphql } from '../graphql'
 
 const CLIENT_PAGE_HEADER_FRAGMENT = graphql(`
   fragment ClientPageHeaderFragment on GroupDto {
