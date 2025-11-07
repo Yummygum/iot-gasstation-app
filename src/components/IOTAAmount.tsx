@@ -5,7 +5,7 @@ import IOTASymbol from './ui/IOTASymbol'
 interface IIOTAAmountProps {
   className?: string
   hasIOTAMark?: boolean
-  amount: number
+  amount?: number
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
