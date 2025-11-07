@@ -1,12 +1,13 @@
-'use client'
-import { useSuspenseFragment } from '@apollo/client/react'
+import { useFragment } from '@apollo/client/react'
 import { graphql } from 'gql.tada'
-import { SettingsIcon } from 'lucide-react'
+import { PlusIcon, SettingsIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { Suspense } from 'react'
 
+import AddClientDialog from './AddClientDialog'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
+import { DialogTrigger } from './ui/dialog'
 import { Skeleton } from './ui/skeleton'
 
 const GROUP_FRAGMENT = graphql(`
@@ -19,7 +20,7 @@ const GROUP_FRAGMENT = graphql(`
 const GroupPageHeader = () => {
   const params = useParams()
 
-  const { data } = useSuspenseFragment({
+  const { data } = useFragment({
     fragment: GROUP_FRAGMENT,
     from: {
       __typename: 'GroupDto',
@@ -49,10 +50,14 @@ const GroupPageHeader = () => {
           </p>
         </div>
 
-        <Button variant="outline">
-          <SettingsIcon />
-          Client settings
-        </Button>
+        <AddClientDialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <PlusIcon />
+              Add Client
+            </Button>
+          </DialogTrigger>
+        </AddClientDialog>
       </Suspense>
     </header>
   )

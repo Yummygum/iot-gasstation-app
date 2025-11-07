@@ -1,9 +1,10 @@
 'use client'
-import { useSuspenseQuery } from '@apollo/client/react'
+import { useQuery } from '@apollo/client/react'
 import { use } from 'react'
 
 import BudgetBar from '@/components/BudgetBar/BudgetBar'
 import GasChart from '@/components/Chart/GasChart'
+import ClientTable from '@/components/ClientTable/ClientTable'
 import GroupPageHeader from '@/components/GroupPageHeader'
 import GET_GROUP from '@/lib/api/queries/getGroup'
 
@@ -16,7 +17,7 @@ interface GroupPageProps {
 const GroupPage = ({ params }: GroupPageProps) => {
   const { id } = use(params)
 
-  useSuspenseQuery(GET_GROUP, {
+  const { data } = useQuery(GET_GROUP, {
     variables: {
       groupId: id
     }
@@ -27,9 +28,12 @@ const GroupPage = ({ params }: GroupPageProps) => {
       <GroupPageHeader />
 
       <section className="flex flex-col gap-10 p-6">
+        {data?.getGroup?.balance}
         <BudgetBar />
 
         <GasChart />
+
+        <ClientTable />
       </section>
     </div>
   )

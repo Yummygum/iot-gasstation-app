@@ -114,7 +114,7 @@ const ClientList = ({ isActive }: { isActive: (route: string) => boolean }) => {
   }
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup className="gap-3 group-data-[collapsible=icon]:hidden">
       {data.getGroupList.map((menuItem, idx) => (
         <SidebarMenuItem
           className="flex flex-col items-center gap-3"
