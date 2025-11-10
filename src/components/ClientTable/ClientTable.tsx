@@ -230,15 +230,10 @@ const ClientTable = () => {
         <Input
           className="max-w-sm"
           onChange={(event) =>
-            table
-              .getColumn('lastTransaction')
-              ?.setFilterValue(event.target.value)
+            table.getColumn('name')?.setFilterValue(event.target.value)
           }
-          placeholder="Search clients..."
-          value={
-            (table.getColumn('lastTransaction')?.getFilterValue() as string) ??
-            ''
-          }
+          placeholder="Filter emails..."
+          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
         />
       </div>
       <div className="overflow-hidden rounded-md border">
