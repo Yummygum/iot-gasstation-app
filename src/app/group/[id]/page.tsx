@@ -28,7 +28,7 @@ const GroupPage = ({ params }: GroupPageProps) => {
       <GroupPageHeader />
 
       <section className="flex flex-col gap-10 p-6">
-        <BudgetBar />
+        <BudgetBar groupId={id} />
 
         <GasChart />
 

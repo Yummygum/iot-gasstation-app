@@ -20,7 +20,11 @@ const sanitizeInput = (value: string): string =>
     .replace(/[,.]{2,}/g, (str) => str[0])
     .replace(/(?:[,.].*)[,.]/g, (str) => str.slice(0, -1))
 
-const CurrencyConverter = () => {
+interface CurrencyConverterProps {
+  name?: string
+}
+
+const CurrencyConverter = ({ name = 'euroAmount' }: CurrencyConverterProps) => {
   const [euro, setEuro] = useState('')
   const [rate, setRate] = useState<number | null>(null)
 
@@ -37,7 +41,7 @@ const CurrencyConverter = () => {
   }, [])
 
   const parsedEuro = parseNumber(euro)
-  const computedValue = rate ? +(parsedEuro * rate).toFixed(2) : 0
+  const computedValue = rate ? Math.round(parsedEuro * rate) : 0
 
   return (
     <fieldset className="text-center">
@@ -47,10 +51,12 @@ const CurrencyConverter = () => {
           <input
             className="w-32 bg-transparent text-center text-4xl font-light outline-none"
             inputMode="decimal"
+            name={name}
             onChange={(event) => setEuro(sanitizeInput(event.target.value))}
-            placeholder="0,00"
+            placeholder="00,00"
             value={euro}
           />
+          <input name="iotaAmount" type="hidden" value={computedValue} />
         </div>
         <ArrowLeftRight className="h-8 w-8 text-gray-400" />
         <output

@@ -1,29 +1,44 @@
 'use client'
+import { useFragment } from '@apollo/client/react'
+import { graphql } from 'gql.tada'
 import { useEffect, useState } from 'react'
 
 import { quickHash } from '@/lib/quickHash'
 
-import CurrencyConverter from '../CurrencyConverter'
+import AllocateFundsDialog from '../AllocateFundsDialog'
 import { Button } from '../ui/button'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '../ui/dialog'
 import { Item, ItemActions, ItemContent } from '../ui/item'
 import { Skeleton } from '../ui/skeleton'
 import BudgetBarItem from './BudgetBarItem'
 
-const BudgetBar = () => {
+interface BudgetBarProps {
+  groupId?: string
+}
+
+const BUDGET_BAR_FRAGMENT = graphql(`
+  fragment BudgetBarFragment on GroupDto {
+    balance
+    members
+  }
+`)
+
+const BudgetBar = ({ groupId }: BudgetBarProps) => {
   const [loading, setLoading] = useState(true)
+
+  const { data } = useFragment({
+    fragment: BUDGET_BAR_FRAGMENT,
+    from: {
+      __typename: 'GroupDto',
+      groupId
+    }
+  })
+
+  const members = data?.members ?? []
 
   const values = [
     {
       title: 'Current balance',
-      value: 99.26
+      value: data.balance ?? 0
     },
     {
       title: 'Est. remaining transactions',
@@ -42,65 +57,42 @@ const BudgetBar = () => {
   }, [])
 
   return (
-    <>
-      <Dialog>
-        <Item
-          className="rounded-2xl p-8 [background:linear-gradient(89deg,rgba(198,230,251,0.20)1.28%,rgba(181,210,251,0.20)50.75%,rgba(163,189,251,0.20)100.22%)]"
-          variant="muted"
-        >
-          <ItemContent className="flex h-full flex-row items-stretch gap-10">
-            {!loading &&
-              values.map((value, idx) => (
-                <BudgetBarItem
-                  isLast={idx === values.length - 1}
-                  key={quickHash(value.title)}
-                  title={value.title}
-                  value={value.value}
-                />
-              ))}
+    <Item
+      className="rounded-2xl p-8 [background:linear-gradient(89deg,rgba(198,230,251,0.20)1.28%,rgba(181,210,251,0.20)50.75%,rgba(163,189,251,0.20)100.22%)]"
+      variant="muted"
+    >
+      <ItemContent className="flex h-full flex-row items-stretch gap-10">
+        {!loading &&
+          values.map((value, idx) => (
+            <BudgetBarItem
+              isLast={idx === values.length - 1}
+              key={quickHash(value.title)}
+              title={value.title}
+              value={value.value}
+            />
+          ))}
 
-            {loading &&
-              Array.from({ length: 3 }).map((_, idx) => (
-                <div
-                  className="flex w-full flex-col items-start gap-x-10 gap-y-2"
-                  key={quickHash(`skeleton-${idx}`)}
-                >
-                  <Skeleton
-                    className="bg-primary/10 h-4 w-5/6"
-                    key={`${idx}-1`}
-                  />
-                  <Skeleton
-                    className="bg-primary/10 h-7 w-2/3"
-                    key={`${idx}-2`}
-                  />
-                </div>
-              ))}
-          </ItemContent>
-          <ItemActions>
-            <DialogTrigger asChild>
-              <Button disabled={loading} size="sm" variant="default">
-                Allocate budget
-              </Button>
-            </DialogTrigger>
-          </ItemActions>
-
-          <DialogContent>
-            <form>
-              <DialogHeader className="mb-5">
-                <DialogTitle>Add funds to your account</DialogTitle>
-                <DialogClose />
-              </DialogHeader>
-
-              <CurrencyConverter />
-
-              <Button className="mt-10 w-full">
-                Add funds through personal wallet
-              </Button>
-            </form>
-          </DialogContent>
-        </Item>
-      </Dialog>
-    </>
+        {loading &&
+          Array.from({ length: 3 }).map((_, idx) => (
+            <div
+              className="flex w-full flex-col items-start gap-x-10 gap-y-2"
+              key={quickHash(`skeleton-${idx}`)}
+            >
+              <Skeleton className="bg-primary/10 h-4 w-5/6" key={`${idx}-1`} />
+              <Skeleton className="bg-primary/10 h-7 w-2/3" key={`${idx}-2`} />
+            </div>
+          ))}
+      </ItemContent>
+      <ItemActions>
+        {groupId && members.length > 0 && (
+          <AllocateFundsDialog groupId={groupId}>
+            <Button disabled={loading} size="sm" variant="default">
+              Allocate budget
+            </Button>
+          </AllocateFundsDialog>
+        )}
+      </ItemActions>
+    </Item>
   )
 }
 
