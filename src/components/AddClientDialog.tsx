@@ -5,9 +5,9 @@ import { InfoIcon, LoaderIcon, WalletIcon } from 'lucide-react'
 import { PropsWithChildren, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-import ADD_CLIENT_MUTATION from '@/lib/api/mutations/addClient'
 import ADD_CLIENT_TO_GROUP_MUTATION from '@/lib/api/mutations/addClientToGroup'
-import ADD_GROUP_MUTATION from '@/lib/api/mutations/addGroup'
+import CREATE_CLIENT_MUTATION from '@/lib/api/mutations/createClient'
+import CREATE_GROUP_MUTATION from '@/lib/api/mutations/createGroup'
 import GET_GROUP from '@/lib/api/queries/getGroup'
 import GET_GROUP_LIST from '@/lib/api/queries/getGroupList'
 
@@ -91,8 +91,8 @@ const AddClientDialog = ({
     [groupsData?.getGroupList]
   )
 
-  const [addClient, { loading: addClientLoading }] = useMutation(
-    ADD_CLIENT_MUTATION,
+  const [createClient, { loading: createClientLoading }] = useMutation(
+    CREATE_CLIENT_MUTATION,
     {
       refetchQueries: [GET_GROUP],
       errorPolicy: 'all'
@@ -107,8 +107,8 @@ const AddClientDialog = ({
     }
   )
 
-  const [addGroup, { loading: addGroupLoading }] = useMutation(
-    ADD_GROUP_MUTATION,
+  const [createGroup, { loading: createGroupLoading }] = useMutation(
+    CREATE_GROUP_MUTATION,
     {
       refetchQueries: [GET_GROUP_LIST],
       errorPolicy: 'all'
@@ -116,7 +116,7 @@ const AddClientDialog = ({
   )
 
   const isLoading =
-    addClientLoading || addClientToGroupLoading || addGroupLoading
+    createClientLoading || addClientToGroupLoading || createGroupLoading
 
   const handleSubmit = async () => {
     if (!isFormValid) {
@@ -125,14 +125,14 @@ const AddClientDialog = ({
     }
 
     try {
-      const { data: addClientData } = await addClient({
+      const { data: createClientData } = await createClient({
         variables: { name: clientName, walletAddress: walletAddress }
       })
 
       // Add default group if no groups exist
       if (groups.find((group) => group.groupId === 'my-group')) {
         try {
-          await addGroup({
+          await createGroup({
             variables: { name: 'My group' }
           })
         } catch (err) {
@@ -141,21 +141,21 @@ const AddClientDialog = ({
         }
       }
 
-      if (addClientData?.registerClient.clientId) {
+      if (createClientData?.registerClient.clientId) {
         addClientToGroup({
           variables: {
             groupId: groupId ?? '',
-            clientId: addClientData.registerClient.clientId
+            clientId: createClientData.registerClient.clientId
           }
         })
+
+        toast.success(`Client added successfully`)
       }
     } catch (err) {
       console.error(err)
       toast.error('Something went wrong adding a client')
       return
     }
-
-    toast.success(`Client added successfully`)
   }
 
   return (

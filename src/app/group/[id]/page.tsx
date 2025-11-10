@@ -17,7 +17,7 @@ interface GroupPageProps {
 const GroupPage = ({ params }: GroupPageProps) => {
   const { id } = use(params)
 
-  const { data } = useQuery(GET_GROUP, {
+  useQuery(GET_GROUP, {
     variables: {
       groupId: id
     }
@@ -28,7 +28,6 @@ const GroupPage = ({ params }: GroupPageProps) => {
       <GroupPageHeader />
 
       <section className="flex flex-col gap-10 p-6">
-        {data?.getGroup?.balance}
         <BudgetBar />
 
         <GasChart />

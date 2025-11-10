@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery } from '@apollo/client/react'
+import { useQuery } from '@apollo/client/react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,12 +14,8 @@ import {
   VisibilityState
 } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
-import { useMemo, useState } from 'react'
-
-import type {
-  RemoveClientMutationResult,
-  RemoveClientMutationVariables
-} from '@/lib/api/mutations/removeClient'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -39,11 +35,10 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import REMOVE_CLIENT_MUTATION from '@/lib/api/mutations/removeClient'
-import GET_CLIENT from '@/lib/api/queries/getClient'
 import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
 import { tableMeta } from '@/lib/utils'
 
+import ConfirmDeleteClientDialog from '../ConfirmDeleteClientDialog'
 import IOTAAmount from '../IOTAAmount'
 import { ValueRenderer } from '../ValueRenderer'
 
@@ -52,14 +47,14 @@ type ClientColumn = {
   amount: number | null
   name: string
   lastTransaction: Date
+  walletAddress: string
 }
 
-type RemoveClientMutationFn = (_options?: {
-  variables: RemoveClientMutationVariables
-}) => Promise<{ data?: RemoveClientMutationResult }>
-
 type TableMeta = {
-  removeClient: RemoveClientMutationFn
+  showDeleteClientDialog: boolean
+  setShowDeleteClientDialog: Dispatch<SetStateAction<boolean>>
+  clientId: string | null
+  setClientId: Dispatch<SetStateAction<string | null>>
 }
 const metaGetter = tableMeta<TableMeta>()
 
@@ -129,39 +124,49 @@ const columns: ColumnDef<ClientColumn>[] = [
     enableHiding: false,
     cell: ({ row, table }) => {
       const client = row.original
+      const meta = metaGetter(table)
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="h-8 w-8 p-0" variant="ghost">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(client.id)}
-            >
-              Copy client ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                const { removeClient } = metaGetter(table)
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="h-8 w-8 p-0" variant="ghost">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onSelect={() => {
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(client.walletAddress)
 
-                removeClient({
-                  variables: {
-                    clientId: client.id
+                    toast.success('Wallet address copied to clipboard')
+                  } else {
+                    toast.error(
+                      'Copy to clipboard is not supported in your browser'
+                    )
                   }
-                })
-              }}
-            >
-              Delete client
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                }}
+              >
+                Copy wallet address
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                className="text-medium text-destructive hover:text-destructive hover:bg-destructive/10 focus:text-destructive focus:bg-destructive/10"
+                onClick={() => {
+                  meta.setClientId(client.id)
+                  meta.setShowDeleteClientDialog(true)
+                }}
+              >
+                Delete client
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
       )
     }
   }
@@ -173,11 +178,10 @@ const ClientTable = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
 
-  const { data: clients } = useQuery(GET_CLIENT_LIST)
+  const [showDeleteClientDialog, setShowDeleteClientDialog] = useState(false)
+  const [clientId, setClientId] = useState<string | null>(null)
 
-  const [removeClient] = useMutation(REMOVE_CLIENT_MUTATION, {
-    refetchQueries: [GET_CLIENT_LIST, GET_CLIENT]
-  })
+  const { data: clients } = useQuery(GET_CLIENT_LIST)
 
   const formattedData: ClientColumn[] = useMemo(() => {
     // TODO: add missing fields
@@ -186,6 +190,7 @@ const ClientTable = () => {
         id: client.clientId,
         amount: client.balance,
         name: client.name,
+        walletAddress: client.walletAddress,
         // walletAddress: client.walletAddress,
         // groupId: client.groupId,
         // clientId: client.clientId,
@@ -212,7 +217,10 @@ const ClientTable = () => {
       rowSelection
     },
     meta: {
-      removeClient
+      showDeleteClientDialog,
+      setShowDeleteClientDialog,
+      clientId,
+      setClientId
     }
   })
 
@@ -300,6 +308,19 @@ const ClientTable = () => {
           </Button>
         </div>
       </div>
+
+      {clientId && (
+        <ConfirmDeleteClientDialog
+          clientId={clientId}
+          onOpenChange={(val) => {
+            setShowDeleteClientDialog(val)
+            if (!val) {
+              setClientId(null)
+            }
+          }}
+          open={showDeleteClientDialog}
+        />
+      )}
     </div>
   )
 }

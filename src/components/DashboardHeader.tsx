@@ -3,6 +3,7 @@ import { PlusIcon } from 'lucide-react'
 import { Suspense } from 'react'
 
 import AddClientDialog from './AddClientDialog'
+import GroupDialog from './GroupDialog'
 import IOTAAmount from './IOTAAmount'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
@@ -30,10 +31,14 @@ const DashboardHeader = () => {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline">
-            <PlusIcon />
-            Add Group
-          </Button>
+          <GroupDialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <PlusIcon />
+                Create group
+              </Button>
+            </DialogTrigger>
+          </GroupDialog>
 
           <AddClientDialog>
             <DialogTrigger asChild>

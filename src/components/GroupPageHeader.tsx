@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 
 import { graphql } from '../lib/api/graphql'
 import AddClientDialog from './AddClientDialog'
+import GroupDialog from './GroupDialog'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
 import { DialogTrigger } from './ui/dialog'
@@ -59,6 +60,15 @@ const GroupPageHeader = () => {
             </Button>
           </DialogTrigger>
         </AddClientDialog>
+
+        <GroupDialog groupId={groupId} name={data.name}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <SettingsIcon />
+              Settings
+            </Button>
+          </DialogTrigger>
+        </GroupDialog>
       </Suspense>
     </header>
   )
