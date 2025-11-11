@@ -18,7 +18,6 @@ interface BudgetBarProps {
 const BUDGET_BAR_FRAGMENT = graphql(`
   fragment BudgetBarFragment on GroupDto {
     balance
-    members
   }
 `)
 
@@ -32,8 +31,6 @@ const BudgetBar = ({ groupId }: BudgetBarProps) => {
       groupId
     }
   })
-
-  const members = data?.members ?? []
 
   const values = [
     {
@@ -84,7 +81,7 @@ const BudgetBar = ({ groupId }: BudgetBarProps) => {
           ))}
       </ItemContent>
       <ItemActions>
-        {groupId && members.length > 0 && (
+        {groupId && (
           <AllocateFundsDialog groupId={groupId}>
             <Button disabled={loading} size="sm" variant="default">
               Allocate budget

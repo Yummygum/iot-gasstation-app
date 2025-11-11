@@ -1,10 +1,12 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
+import { useForm } from '@tanstack/react-form'
 import { LoaderIcon, Trash2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { PropsWithChildren, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import * as z from 'zod'
 
 import CREATE_GROUP_MUTATION from '@/lib/api/mutations/createGroup'
 import DELETE_GROUP_MUTATION from '@/lib/api/mutations/deleteGroup'
@@ -24,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle
 } from './ui/dialog'
-import { Field, FieldGroup, FieldLabel, FieldSet } from './ui/field'
+import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from './ui/field'
 import { InputGroup, InputGroupInput } from './ui/input-group'
 
 interface GroupDialogProps extends PropsWithChildren {
@@ -38,20 +40,45 @@ const GroupDialog = ({
   groupId,
   name: initialName = ''
 }: GroupDialogProps) => {
-  const [groupName, setGroupName] = useState(initialName)
+  const [, /* groupName */ setGroupName] = useState(initialName)
+  const [isOpen, setIsOpen] = useState(false)
+  const form = useForm({
+    defaultValues: {
+      name: initialName
+    },
+    validators: {
+      onSubmit: z.object({
+        name: z.string().min(1, 'Please enter a group name')
+      })
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        if (isEditMode && groupId) {
+          await updateExistingGroup(value.name)
+        } else {
+          await createNewGroup(value.name)
+        }
+      } catch (err) {
+        console.error(err)
+        toast.error(
+          isEditMode
+            ? 'Something went wrong updating the group'
+            : 'Something went wrong adding a group'
+        )
+        return
+      }
+    }
+  })
 
   const isEditMode = Boolean(groupId)
 
   useEffect(() => {
     setGroupName(initialName)
-  }, [initialName])
+    // keep form in sync when initial name prop changes
+    form.setFieldValue('name', initialName)
+  }, [initialName, form])
 
-  const isFormValid = useMemo(() => groupName !== '', [groupName])
-
-  const hasNameChanged = useMemo(
-    () => isEditMode && groupName !== initialName,
-    [isEditMode, groupName, initialName]
-  )
+  // Track current name for delete/UX only via local state
 
   const router = useRouter()
 
@@ -81,41 +108,29 @@ const GroupDialog = ({
 
   const isLoading = isCreateLoading || isUpdateLoading || isDeleteLoading
 
-  // eslint-disable-next-line max-statements
+  const updateExistingGroup = async (name: string) => {
+    const { data: updateGroupData } = await updateGroup({
+      variables: { groupId: groupId as string, name }
+    })
+    if (updateGroupData?.updateGroup) {
+      toast.success('Group updated successfully')
+      setIsOpen(false)
+    }
+  }
+
+  const createNewGroup = async (name: string) => {
+    const { data: createGroupData } = await createGroup({
+      variables: { name }
+    })
+    if (createGroupData?.createGroup) {
+      toast.success('Group added successfully')
+      router.push(`/group/${createGroupData.createGroup.groupId}`)
+      setIsOpen(false)
+    }
+  }
+
   const handleSubmit = async () => {
-    if (!isFormValid) {
-      toast.error('Please fill out all required fields')
-      return
-    }
-
-    try {
-      if (isEditMode && groupId) {
-        const { data: updateGroupData } = await updateGroup({
-          variables: { groupId: groupId, name: groupName }
-        })
-
-        if (updateGroupData?.updateGroup) {
-          toast.success('Group updated successfully')
-        }
-      } else {
-        const { data: createGroupData } = await createGroup({
-          variables: { name: groupName }
-        })
-
-        if (createGroupData?.createGroup) {
-          toast.success('Group added successfully')
-          router.push(`/group/${createGroupData.createGroup.groupId}`)
-        }
-      }
-    } catch (err) {
-      console.error(err)
-      toast.error(
-        isEditMode
-          ? 'Something went wrong updating the group'
-          : 'Something went wrong adding a group'
-      )
-      return
-    }
+    await form.handleSubmit()
   }
 
   const handleDelete = async () => {
@@ -140,11 +155,25 @@ const GroupDialog = ({
   }
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) {
+          form.reset()
+        }
+
+        setIsOpen(open)
+      }}
+      open={isOpen}
+    >
       {children}
 
       <DialogContent>
-        <form>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+            handleSubmit()
+          }}
+        >
           <DialogHeader className="mb-5">
             <DialogTitle>{isEditMode ? 'Edit group' : ' group'}</DialogTitle>
             <DialogDescription className="text-balance">
@@ -157,19 +186,36 @@ const GroupDialog = ({
           <FieldGroup>
             <FieldSet>
               <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="field--group-name">
-                    Group name
-                  </FieldLabel>
-                  <InputGroup>
-                    <InputGroupInput
-                      id="field--group-name"
-                      onChange={(event) => setGroupName(event.target.value)}
-                      placeholder="Your group name"
-                      value={groupName}
-                    />
-                  </InputGroup>
-                </Field>
+                <form.Field name="name">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor="field--group-name">
+                          Group name
+                        </FieldLabel>
+                        <InputGroup>
+                          <InputGroupInput
+                            aria-invalid={isInvalid}
+                            id="field--group-name"
+                            name={field.name}
+                            onBlur={field.handleBlur}
+                            onChange={(event) => {
+                              setGroupName(event.target.value)
+                              field.handleChange(event.target.value)
+                            }}
+                            placeholder="Your group name"
+                            value={field.state.value}
+                          />
+                        </InputGroup>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
+                </form.Field>
               </FieldGroup>
 
               <DialogFooter className="mt-10 flex-row justify-between gap-2">
@@ -194,22 +240,28 @@ const GroupDialog = ({
                   </AlertDialogTrigger>
                 </ConfirmDeleteGroupDialog>
 
-                <Button
-                  className={isEditMode ? 'ml-auto' : 'w-full'}
-                  disabled={
-                    !isFormValid || isLoading || (isEditMode && !hasNameChanged)
-                  }
-                  onClick={handleSubmit}
-                  type="submit"
-                >
-                  {isLoading ? (
-                    <LoaderIcon className="animate-spin" />
-                  ) : isEditMode ? (
-                    'Edit group'
-                  ) : (
-                    'Create group'
+                <form.Field name="name">
+                  {(field) => (
+                    <Button
+                      className={isEditMode ? 'ml-auto' : 'w-full'}
+                      disabled={
+                        isLoading ||
+                        field.state.value.trim() === '' ||
+                        (isEditMode && field.state.value === initialName)
+                      }
+                      onClick={handleSubmit}
+                      type="submit"
+                    >
+                      {isLoading ? (
+                        <LoaderIcon className="animate-spin" />
+                      ) : isEditMode ? (
+                        'Edit group'
+                      ) : (
+                        'Create group'
+                      )}
+                    </Button>
                   )}
-                </Button>
+                </form.Field>
               </DialogFooter>
             </FieldSet>
           </FieldGroup>

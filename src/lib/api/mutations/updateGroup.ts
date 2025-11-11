@@ -17,3 +17,4 @@ export type UpdateGroupMutationVariables = VariablesOf<
 
 export default UPDATE_GROUP_MUTATION
 
+
