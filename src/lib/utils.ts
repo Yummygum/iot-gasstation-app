@@ -23,6 +23,7 @@ export const tableMeta =
   (table: Table<any>) =>
     table.options.meta as Meta
 
+// eslint-disable-next-line max-statements
 export function normalizeClientUrl(raw: string): string {
   const input = (raw || '').trim()
   if (!input) {
