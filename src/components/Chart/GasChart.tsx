@@ -11,7 +11,8 @@ import { twMerge } from 'tailwind-merge'
 
 import type {
   BarChartDataPoint,
-  PieChartDataPoint
+  PieChartDataPoint,
+  Transaction
 } from '@/lib/utils/convertTransactionsToChartData'
 
 import {
@@ -27,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
 import GET_TRANSACTIONS_LIST from '@/lib/api/queries/getTransactionsList'
 import { calculateDateRange } from '@/lib/utils'
 import {
@@ -34,6 +36,7 @@ import {
   convertToPieChartData
 } from '@/lib/utils/convertTransactionsToChartData'
 
+import IOTAAmount from '../IOTAAmount'
 import { Button } from '../ui/button'
 import IOTASymbol from '../ui/IOTASymbol'
 import {
@@ -56,6 +59,148 @@ interface GasChartProps extends ComponentProps<'div'> {
   groupId?: string
 }
 
+/**
+ * Creates a map of clientId -> name from client list data
+ */
+function createClientNameMap(clientData?: {
+  getClientList?: Array<{ clientId?: string; name?: string }>
+}): Map<string, string> {
+  const map = new Map<string, string>()
+
+  if (clientData?.getClientList) {
+    for (const client of clientData.getClientList) {
+      if (client.clientId && client.name) {
+        map.set(client.clientId, client.name)
+      }
+    }
+  }
+
+  return map
+}
+
+/**
+ * Gets the description text for the chart based on time range
+ */
+function getChartDescription(timeRangeDays: number): string {
+  const timeframeLabels: Record<number, string> = {
+    7: 'Last 7 days',
+    30: 'Last 30 days',
+    90: 'Last 3 months'
+  }
+
+  return `Showing gas spent for ${timeframeLabels[timeRangeDays] || `the last ${timeRangeDays} days`}`
+}
+
+/**
+ * Filters transactions by groupId if provided
+ */
+function filterTransactionsByGroup(
+  transactions: Transaction[],
+  groupId?: string
+): Transaction[] {
+  if (!groupId) {
+    return transactions
+  }
+
+  return transactions.filter((transaction) => transaction.groupId === groupId)
+}
+
+/**
+ * Checks if chart data is empty or contains only zero values
+ */
+function hasNoChartData(
+  chartData: BarChartDataPoint[] | PieChartDataPoint[],
+  isBarChart: boolean
+): boolean {
+  if (!chartData || chartData.length === 0) {
+    return true
+  }
+
+  if (isBarChart) {
+    const barData = chartData as BarChartDataPoint[]
+    return barData.every((point) => point.gas === 0)
+  }
+
+  const pieData = chartData as PieChartDataPoint[]
+  return pieData.every((point) => point.value === 0)
+}
+
+/**
+ * Custom tooltip for bar chart showing client breakdown
+ */
+/**
+ * Formats a date string for display in the tooltip
+ */
+function formatTooltipDate(label?: string): string {
+  if (!label) {
+    return ''
+  }
+
+  return new Date(label).toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
+}
+
+/**
+ * Custom tooltip for bar chart showing client breakdown
+ */
+interface BarChartTooltipProps {
+  // eslint-disable-next-line react/boolean-prop-naming
+  active?: boolean
+  label?: string
+  payload?: Array<{
+    payload?: BarChartDataPoint
+    value?: number
+  }>
+}
+
+const BarChartTooltip = ({
+  active: isActive,
+  label,
+  payload
+}: BarChartTooltipProps) => {
+  if (!isActive || !payload?.length) {
+    return null
+  }
+
+  const data = payload[0]?.payload as BarChartDataPoint | undefined
+  const clientBreakdown = data?.clientBreakdown || []
+  const formattedDate = formatTooltipDate(label)
+  const totalValue = payload[0]?.value || 0
+
+  return (
+    <div className="glass min-w-[180px] rounded-lg border px-3 py-2">
+      <div className="mb-2 text-sm font-medium">{formattedDate}</div>
+      <div className="space-y-1 text-xs">
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Total:</span>
+          <IOTAAmount amount={totalValue} size="xs" />
+        </div>
+        {clientBreakdown.length > 0 && (
+          <div className="mt-2 border-t border-[#171D26]/10 pt-2">
+            <div className="text-muted-foreground mb-1 text-[10px] font-medium uppercase">
+              By Client:
+            </div>
+            {clientBreakdown.map((client) => (
+              <div
+                className="flex items-center justify-between"
+                key={client.clientId}
+              >
+                <span className="text-muted-foreground max-w-[100px] truncate">
+                  {client.name}
+                </span>
+                <IOTAAmount amount={client.amount} className="ml-2" size="xs" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
   const [timeRangeDays, setTimeRangeDays] = useState(30)
   const [chartType, setChartType] = useState<'bar' | 'pie'>('bar')
@@ -67,8 +212,13 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
   )
 
   // Chart type flags
-  const isPieChart = chartType === 'pie'
-  const isBarChart = chartType === 'bar'
+  const { isPieChart, isBarChart } = useMemo(
+    () => ({
+      isPieChart: chartType === 'pie',
+      isBarChart: chartType === 'bar'
+    }),
+    [chartType]
+  )
 
   // Fetch data from API
   const { data: queryData, loading } = useQuery(GET_TRANSACTIONS_LIST, {
@@ -78,37 +228,29 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
     }
   })
 
+  // Fetch client list to get client names
+  const { data: clientData } = useQuery(GET_CLIENT_LIST)
+
   // Get transactions from API and filter by groupId if provided
   const transactions = useMemo(() => {
     const allTransactions = queryData?.getTransactionList || []
 
-    // If groupId is provided, filter transactions to only include those with matching groupId
-    if (groupId) {
-      return allTransactions.filter(
-        (transaction) => transaction.groupId === groupId
-      )
-    }
-
-    return allTransactions
+    return filterTransactionsByGroup(allTransactions, groupId)
   }, [queryData, groupId])
 
-  // Convert transactions to chart data format
-  const chartData = useMemo(() => {
-    if (isBarChart) {
-      return convertToBarChartData(transactions, startDate, endDate)
-    }
+  // Convert transactions to chart data format and check if empty
+  const { chartData, hasNoData, description } = useMemo(() => {
+    const clientNameMap = createClientNameMap(clientData)
+    const data = isBarChart
+      ? convertToBarChartData(transactions, startDate, endDate, clientNameMap)
+      : convertToPieChartData(transactions, clientNameMap)
 
-    return convertToPieChartData(transactions)
-  }, [transactions, isBarChart, startDate, endDate])
-
-  const description = useMemo(() => {
-    const timeframeLabels: Record<number, string> = {
-      7: 'Last 7 days',
-      30: 'Last 30 days',
-      90: 'Last 3 months'
+    return {
+      chartData: data,
+      hasNoData: hasNoChartData(data, isBarChart),
+      description: getChartDescription(timeRangeDays)
     }
-    return `Showing gas spent for ${timeframeLabels[timeRangeDays] || `the last ${timeRangeDays} days`}`
-  }, [timeRangeDays])
+  }, [transactions, isBarChart, startDate, endDate, clientData, timeRangeDays])
 
   return (
     <Item className={twMerge('pt-0', className)} variant="outline" {...props}>
@@ -168,6 +310,12 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
             <div className="flex h-full items-center justify-center">
               <p className="text-muted-foreground">Loading chart data...</p>
             </div>
+          ) : hasNoData ? (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-muted-foreground text-sm">
+                No transactions found for the selected period
+              </p>
+            </div>
           ) : isBarChart ? (
             <BarChart
               accessibilityLayer
@@ -192,21 +340,7 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
                 tickLine={false}
                 tickMargin={8}
               />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    className="w-[150px] border border-[#171D26]/15 bg-[#F1F7FE]/70 backdrop-blur-xs"
-                    labelFormatter={(value) => {
-                      return new Date(value).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })
-                    }}
-                    nameKey="gas"
-                  />
-                }
-              />
+              <ChartTooltip content={<BarChartTooltip />} />
               <Bar
                 dataKey="gas"
                 fill="var(--color-gas)"
@@ -216,14 +350,26 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
           ) : (
             <PieChart>
               <ChartTooltip
-                content={<ChartTooltipContent hideLabel />}
+                content={
+                  <ChartTooltipContent
+                    formatter={(value) => (
+                      <IOTAAmount amount={value as number} size="xs" />
+                    )}
+                    hideLabel
+                  />
+                }
                 cursor={false}
               />
               <Pie
                 data={chartData as PieChartDataPoint[]}
                 dataKey="value"
                 innerRadius={60}
-                label={({ name, value }) => `${name}: ${value}`}
+                label={({ name, value }) => (
+                  <>
+                    {name}:
+                    <IOTAAmount amount={value as number} size="xs" />
+                  </>
+                )}
                 nameKey="name"
               />
             </PieChart>

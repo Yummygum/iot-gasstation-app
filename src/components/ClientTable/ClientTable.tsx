@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/table'
 import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
 import { tableMeta } from '@/lib/utils'
+import { formatDatabaseDateToDay } from '@/lib/utils/formatDateToDay'
 
 import ConfirmDeleteClientDialog from '../ConfirmDeleteClientDialog'
 import IOTAAmount from '../IOTAAmount'
@@ -46,7 +47,7 @@ type ClientColumn = {
   id: string
   amount: number | null
   name: string
-  lastTransaction: Date
+  lastTransaction: string
   walletAddress: string
 }
 
@@ -184,17 +185,13 @@ const ClientTable = () => {
   const { data: clients } = useQuery(GET_CLIENT_LIST)
 
   const formattedData: ClientColumn[] = useMemo(() => {
-    // TODO: add missing fields
     return (
       clients?.getClientList.map((client) => ({
         id: client.clientId,
-        amount: client.balance,
+        amount: Number(client.balance),
         name: client.name,
         walletAddress: client.walletAddress,
-        // walletAddress: client.walletAddress,
-        // groupId: client.groupId,
-        // clientId: client.clientId,
-        lastTransaction: new Date()
+        lastTransaction: formatDatabaseDateToDay(client.metrics.lastTransaction)
       })) ?? []
     )
   }, [clients])

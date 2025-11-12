@@ -1,32 +1,57 @@
 'use client'
+import { useFragment } from '@apollo/client/react'
 import { PlusIcon } from 'lucide-react'
 import { Suspense } from 'react'
 
+import { graphql } from '@/lib/api/graphql'
+
 import AddClientDialog from './AddClientDialog'
 import GroupDialog from './GroupDialog'
-import IOTAAmount from './IOTAAmount'
-import { Avatar, AvatarFallback } from './ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import { DialogTrigger } from './ui/dialog'
 import { Skeleton } from './ui/skeleton'
 
+const DASHBOARD_HEADER_FRAGMENT = graphql(`
+  fragment DashboardHeaderFragment on SponsorWalletDto {
+    name
+    logoUri
+    metrics {
+      allTime {
+        totalTransactions
+      }
+    }
+  }
+`)
+
 const DashboardHeader = () => {
+  const { data } = useFragment({
+    fragment: DASHBOARD_HEADER_FRAGMENT,
+    from: {
+      __typename: 'SponsorWalletDto'
+    }
+  })
+
   return (
     <header className="flex w-full items-center gap-3">
       <Suspense fallback={<DashboardHeaderSkeleton />}>
         <Avatar className="size-12 rounded-md">
-          {/* <AvatarImage className="rounded-none" src={logoUrl} /> */}
-          <AvatarFallback className="w-full rounded-none text-center">
-            JM
-          </AvatarFallback>
+          {data.logoUri ? (
+            <AvatarImage className="rounded-none" src={data.logoUri} />
+          ) : (
+            <AvatarFallback className="w-full rounded-none text-center">
+              {data.name?.[0] ?? ''}
+            </AvatarFallback>
+          )}
         </Avatar>
 
         <div className="flex w-full flex-col overflow-hidden">
           <h1 className="truncate text-2xl leading-normal font-medium">
-            Jelle Millenaar
+            {data.name ?? 'Dashboard'}
           </h1>
           <p className="text-muted-foreground truncate text-sm">
-            Current balance: <IOTAAmount amount={100} />
+            Total transactions:{' '}
+            {data.metrics?.allTime?.totalTransactions ?? 'Unknown'}
           </p>
         </div>
 

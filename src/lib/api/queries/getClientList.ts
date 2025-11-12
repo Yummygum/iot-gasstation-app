@@ -7,7 +7,15 @@ const GET_CLIENT_LIST = graphql(`
       walletAddress
       balance
       groupId
+      logoUri
       clientId
+      metrics {
+        firstTransaction
+        lastTransaction
+        allTime {
+          totalTransactions
+        }
+      }
     }
   }
 `)

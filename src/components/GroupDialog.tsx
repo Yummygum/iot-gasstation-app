@@ -16,6 +16,7 @@ import GET_GROUP_LIST from '@/lib/api/queries/getGroupList'
 
 import { ConfirmDeleteGroupDialog } from './ConfirmDeleteGroupDialog'
 import { AlertDialogTrigger } from './ui/alert-dialog'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import {
   Dialog,
@@ -27,36 +28,41 @@ import {
   DialogTitle
 } from './ui/dialog'
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from './ui/field'
+import { Input } from './ui/input'
 import { InputGroup, InputGroupInput } from './ui/input-group'
 
 interface GroupDialogProps extends PropsWithChildren {
   groupId?: string
   name?: string
+  logoUri?: string
 }
 
 // eslint-disable-next-line max-statements
 const GroupDialog = ({
   children,
   groupId,
-  name: initialName = ''
+  name: initialName = '',
+  logoUri: initialLogoUri = ''
 }: GroupDialogProps) => {
   const [, /* groupName */ setGroupName] = useState(initialName)
   const [isOpen, setIsOpen] = useState(false)
   const form = useForm({
     defaultValues: {
-      name: initialName
+      name: initialName,
+      logoUri: initialLogoUri
     },
     validators: {
       onSubmit: z.object({
-        name: z.string().min(1, 'Please enter a group name')
+        name: z.string().min(1, 'Please enter a group name'),
+        logoUri: z.string()
       })
     },
     onSubmit: async ({ value }) => {
       try {
         if (isEditMode && groupId) {
-          await updateExistingGroup(value.name)
+          await updateExistingGroup(value.name, value.logoUri || undefined)
         } else {
-          await createNewGroup(value.name)
+          await createNewGroup(value.name, value.logoUri || undefined)
         }
       } catch (err) {
         console.error(err)
@@ -76,7 +82,8 @@ const GroupDialog = ({
     setGroupName(initialName)
     // keep form in sync when initial name prop changes
     form.setFieldValue('name', initialName)
-  }, [initialName, form])
+    form.setFieldValue('logoUri', initialLogoUri)
+  }, [initialName, initialLogoUri, form])
 
   // Track current name for delete/UX only via local state
 
@@ -108,9 +115,9 @@ const GroupDialog = ({
 
   const isLoading = isCreateLoading || isUpdateLoading || isDeleteLoading
 
-  const updateExistingGroup = async (name: string) => {
+  const updateExistingGroup = async (name: string, logoUri?: string) => {
     const { data: updateGroupData } = await updateGroup({
-      variables: { groupId: groupId as string, name }
+      variables: { input: { groupId: groupId as string, name, logoUri } }
     })
     if (updateGroupData?.updateGroup) {
       toast.success('Group updated successfully')
@@ -118,9 +125,9 @@ const GroupDialog = ({
     }
   }
 
-  const createNewGroup = async (name: string) => {
+  const createNewGroup = async (name: string, logoUri?: string) => {
     const { data: createGroupData } = await createGroup({
-      variables: { name }
+      variables: { name, logoUri }
     })
     if (createGroupData?.createGroup) {
       toast.success('Group added successfully')
@@ -175,7 +182,9 @@ const GroupDialog = ({
           }}
         >
           <DialogHeader className="mb-5">
-            <DialogTitle>{isEditMode ? 'Edit group' : ' group'}</DialogTitle>
+            <DialogTitle>
+              {isEditMode ? 'Edit group' : 'Create group'}
+            </DialogTitle>
             <DialogDescription className="text-balance">
               Groups are collections of clients. Use groups to organize your
               clients and manage their funds more efficiently.
@@ -186,6 +195,40 @@ const GroupDialog = ({
           <FieldGroup>
             <FieldSet>
               <FieldGroup>
+                <form.Subscribe
+                  selector={(state) => [
+                    state.values.name,
+                    state.values.logoUri
+                  ]}
+                >
+                  {([groupName, logoUri]) => {
+                    const hasLogoUri = logoUri && logoUri.trim() !== ''
+                    const fallbackText =
+                      groupName && groupName.length >= 2
+                        ? `${groupName.charAt(0).toUpperCase()}${groupName.charAt(1).toUpperCase()}`
+                        : groupName && groupName.length === 1
+                          ? groupName.charAt(0).toUpperCase()
+                          : ''
+
+                    return (
+                      <div className="flex justify-center">
+                        <Avatar className="h-[88px] w-[88px] rounded-md">
+                          {hasLogoUri && (
+                            <AvatarImage
+                              alt={groupName || 'Group logo'}
+                              className="rounded-none object-cover"
+                              src={logoUri}
+                            />
+                          )}
+                          <AvatarFallback className="w-full rounded-none text-center text-lg">
+                            {fallbackText}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                    )
+                  }}
+                </form.Subscribe>
+
                 <form.Field name="name">
                   {(field) => {
                     const isInvalid =
@@ -216,6 +259,28 @@ const GroupDialog = ({
                     )
                   }}
                 </form.Field>
+
+                <form.Field name="logoUri">
+                  {(field) => {
+                    return (
+                      <Field>
+                        <FieldLabel htmlFor="field--logo-uri">
+                          Logo URL (optional)
+                        </FieldLabel>
+                        <Input
+                          autoComplete="off"
+                          id="field--logo-uri"
+                          name={field.name}
+                          onChange={(event) =>
+                            field.handleChange(event.target.value)
+                          }
+                          placeholder="https://example.com/logo.png"
+                          value={field.state.value || ''}
+                        />
+                      </Field>
+                    )
+                  }}
+                </form.Field>
               </FieldGroup>
 
               <DialogFooter className="mt-10 flex-row justify-between gap-2">
@@ -240,14 +305,21 @@ const GroupDialog = ({
                   </AlertDialogTrigger>
                 </ConfirmDeleteGroupDialog>
 
-                <form.Field name="name">
-                  {(field) => (
+                <form.Subscribe
+                  selector={(state) => [
+                    state.values.name,
+                    state.values.logoUri
+                  ]}
+                >
+                  {([name, logoUri]) => (
                     <Button
                       className={isEditMode ? 'ml-auto' : 'w-full'}
                       disabled={
                         isLoading ||
-                        field.state.value.trim() === '' ||
-                        (isEditMode && field.state.value === initialName)
+                        name.trim() === '' ||
+                        (isEditMode &&
+                          name === initialName &&
+                          logoUri === initialLogoUri)
                       }
                       onClick={handleSubmit}
                       type="submit"
@@ -261,7 +333,7 @@ const GroupDialog = ({
                       )}
                     </Button>
                   )}
-                </form.Field>
+                </form.Subscribe>
               </DialogFooter>
             </FieldSet>
           </FieldGroup>

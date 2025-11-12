@@ -8,3 +8,15 @@ export function formatDateToDay(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+/**
+ * Formats a database date to YYYY-MM-DD string using UTC to avoid timezone issues
+ */
+export function formatDatabaseDateToDay(
+  date: string | null | undefined
+): string {
+  if (!date) {
+    return ''
+  }
+
+  return formatDateToDay(new Date(date))
+}

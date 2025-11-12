@@ -115,7 +115,11 @@ const AddClientDialog = ({
         const { data: createClientData } = await createClient({
           variables: {
             name: submitValue.clientName,
-            walletAddress: submitValue.walletAddress
+            walletAddress: submitValue.walletAddress,
+            groupId:
+              submitValue.groupId === 'my-group'
+                ? undefined
+                : submitValue.groupId
           }
         })
 
@@ -124,24 +128,24 @@ const AddClientDialog = ({
             await createGroup({
               variables: { name: 'My group' }
             })
+
+            if (createClientData?.registerClient.clientId) {
+              await addClientToGroup({
+                variables: {
+                  groupId: submitValue.groupId ?? '',
+                  clientId: createClientData.registerClient.clientId
+                }
+              })
+            }
           } catch (err) {
             toast.error('Something went wrong adding your first group')
             console.error(err)
           }
         }
 
-        if (createClientData?.registerClient.clientId) {
-          await addClientToGroup({
-            variables: {
-              groupId: submitValue.groupId ?? '',
-              clientId: createClientData.registerClient.clientId
-            }
-          })
-
-          toast.success(`Client added successfully`)
-          form.reset()
-          setIsOpen(false)
-        }
+        toast.success(`Client added successfully`)
+        form.reset()
+        setIsOpen(false)
       } catch (err) {
         console.error(err)
         toast.error('Something went wrong adding a client')

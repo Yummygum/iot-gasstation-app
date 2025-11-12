@@ -1,8 +1,18 @@
 import { graphql, VariablesOf } from '../graphql'
 
 const CREATE_CLIENT_MUTATION = graphql(`
-  mutation CreateClient($name: String!, $walletAddress: String!) {
-    registerClient(name: $name, walletAddress: $walletAddress) {
+  mutation CreateClient(
+    $name: String!
+    $walletAddress: String!
+    $logoUri: Url
+    $groupId: UUID
+  ) {
+    registerClient(
+      name: $name
+      walletAddress: $walletAddress
+      logoUri: $logoUri
+      groupId: $groupId
+    ) {
       balance
       clientId
       groupId

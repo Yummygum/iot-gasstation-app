@@ -1,17 +1,23 @@
 'use client'
-import BudgetBar from '@/components/BudgetBar/BudgetBar'
+
+import { useQuery } from '@apollo/client/react'
+
+import DashboardBudgetBar from '@/components/BudgetBar/DashboardBudgetBar'
 import GasChart from '@/components/Chart/GasChart'
 import DashboardHeader from '@/components/DashboardHeader'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
 import SpendingSummary from '@/components/SpendingSummary/SpendingSummary'
+import GET_SPONSOR_WALLET from '@/lib/api/queries/getSponsorWallet'
 
 const Dashboard = () => {
+  useQuery(GET_SPONSOR_WALLET)
+
   return (
     <div className="flex w-full flex-col gap-10 px-4 py-8">
       <DashboardHeader />
 
-      <BudgetBar />
+      <DashboardBudgetBar />
 
       <GasChart />
 

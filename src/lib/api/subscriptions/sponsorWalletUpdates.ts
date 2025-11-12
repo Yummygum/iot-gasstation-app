@@ -10,6 +10,11 @@ const SPONSOR_WALLET_UPDATES_SUBSCRIPTION = graphql(`
       address
       estimatedRemainingTransactions
       estimatedDepletionDate
+      metrics {
+        allTime {
+          totalTransactions
+        }
+      }
     }
   }
 `)

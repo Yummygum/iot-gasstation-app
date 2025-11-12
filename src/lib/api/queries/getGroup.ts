@@ -6,6 +6,8 @@ const GET_GROUP = graphql(`
       groupId
       balance
       members
+      estimatedRemainingTransactions
+      estimatedDepletionDate
     }
   }
 `)

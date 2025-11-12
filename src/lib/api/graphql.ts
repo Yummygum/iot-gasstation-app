@@ -12,6 +12,7 @@ export const graphql = initGraphQLTada<{
     Int: number
     String: string
     UUID: string
+    Url: string
   }
 }>()
 

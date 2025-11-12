@@ -1,8 +1,8 @@
 import { graphql, VariablesOf } from '../graphql'
 
 const CREATE_GROUP_MUTATION = graphql(`
-  mutation CreateGroup($name: String!) {
-    createGroup(name: $name) {
+  mutation CreateGroup($name: String!, $logoUri: Url) {
+    createGroup(name: $name, logoUri: $logoUri) {
       name
       groupId
       balance

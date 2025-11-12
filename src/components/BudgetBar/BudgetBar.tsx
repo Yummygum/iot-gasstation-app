@@ -1,7 +1,4 @@
 'use client'
-import { useFragment } from '@apollo/client/react'
-import { graphql } from 'gql.tada'
-import { useEffect, useState } from 'react'
 
 import { quickHash } from '@/lib/utils/quickHash'
 
@@ -9,50 +6,15 @@ import AllocateFundsDialog from '../AllocateFundsDialog'
 import { Button } from '../ui/button'
 import { Item, ItemActions, ItemContent } from '../ui/item'
 import { Skeleton } from '../ui/skeleton'
-import BudgetBarItem from './BudgetBarItem'
+import BudgetBarItem, { BudgetBarItemProps } from './BudgetBarItem'
 
 interface BudgetBarProps {
   groupId?: string
+  loading: boolean
+  values: BudgetBarItemProps[]
 }
 
-const BUDGET_BAR_FRAGMENT = graphql(`
-  fragment BudgetBarFragment on GroupDto {
-    balance
-  }
-`)
-
-const BudgetBar = ({ groupId }: BudgetBarProps) => {
-  const [loading, setLoading] = useState(true)
-
-  const { data } = useFragment({
-    fragment: BUDGET_BAR_FRAGMENT,
-    from: {
-      __typename: 'GroupDto',
-      groupId
-    }
-  })
-
-  const values = [
-    {
-      title: 'Current balance',
-      value: data.balance ?? 0
-    },
-    {
-      title: 'Est. remaining transactions',
-      value: 2929
-    },
-    {
-      title: 'Est. date of running out',
-      value: new Date('2025-11-21')
-    }
-  ]
-
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false)
-    }, 200)
-  }, [])
-
+const BudgetBar = ({ groupId, loading, values }: BudgetBarProps) => {
   return (
     <Item
       className="rounded-2xl p-8 [background:linear-gradient(89deg,rgba(198,230,251,0.20)1.28%,rgba(181,210,251,0.20)50.75%,rgba(163,189,251,0.20)100.22%)]"

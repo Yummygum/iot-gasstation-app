@@ -135,10 +135,9 @@ const ClientList = ({ isActive }: { isActive: (route: string) => boolean }) => {
             >
               <span className="flex w-full items-center gap-2.5 truncate">
                 <Avatar className="border-muted size-5 overflow-hidden rounded-sm bg-white">
-                  <AvatarImage
-                    alt={menuItem.name}
-                    // src={menuItem.imageUrl ?? ''}
-                  />
+                  {menuItem.logoUri && (
+                    <AvatarImage alt={menuItem.name} src={menuItem.logoUri} />
+                  )}
                   <AvatarFallback className="w-full text-center text-sm">
                     {menuItem.name.charAt(0).toUpperCase()}
                   </AvatarFallback>

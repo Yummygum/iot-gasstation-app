@@ -1,8 +1,8 @@
 import { graphql, VariablesOf } from '../graphql'
 
 const UPDATE_GROUP_MUTATION = graphql(`
-  mutation UpdateGroup($groupId: UUID!, $name: String!) {
-    updateGroup(groupId: $groupId, name: $name) {
+  mutation UpdateGroup($input: UpdateGroupInput!) {
+    updateGroup(input: $input) {
       name
       groupId
       balance
@@ -16,5 +16,3 @@ export type UpdateGroupMutationVariables = VariablesOf<
 >
 
 export default UPDATE_GROUP_MUTATION
-
-

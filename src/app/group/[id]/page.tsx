@@ -2,7 +2,7 @@
 import { useQuery } from '@apollo/client/react'
 import { use } from 'react'
 
-import BudgetBar from '@/components/BudgetBar/BudgetBar'
+import GroupBudgetBar from '@/components/BudgetBar/GroupBudgetBar'
 import GasChart from '@/components/Chart/GasChart'
 import ClientTable from '@/components/ClientTable/ClientTable'
 import GroupPageHeader from '@/components/GroupPageHeader'
@@ -28,7 +28,7 @@ const GroupPage = ({ params }: GroupPageProps) => {
       <GroupPageHeader />
 
       <section className="flex flex-col gap-10 p-4">
-        <BudgetBar groupId={id} />
+        <GroupBudgetBar groupId={id} />
 
         <GasChart groupId={id} />
 

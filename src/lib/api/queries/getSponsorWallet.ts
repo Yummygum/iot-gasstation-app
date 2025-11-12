@@ -10,6 +10,11 @@ const GET_SPONSOR_WALLET = graphql(`
       logoUri
       estimatedRemainingTransactions
       estimatedDepletionDate
+      metrics {
+        allTime {
+          totalTransactions
+        }
+      }
     }
   }
 `)

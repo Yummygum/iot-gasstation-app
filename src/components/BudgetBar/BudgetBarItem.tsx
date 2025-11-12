@@ -6,15 +6,13 @@ import { quickHash } from '@/lib/utils/quickHash'
 import IOTAAmount from '../IOTAAmount'
 import { ValueRenderer } from '../ValueRenderer'
 
-const BudgetBarItem = ({
-  title,
-  value,
-  isLast
-}: {
+export interface BudgetBarItemProps {
   title: string
-  value: number | Date
+  value: number | Date | string
   isLast: boolean
-}) => {
+}
+
+const BudgetBarItem = ({ title, value, isLast }: BudgetBarItemProps) => {
   const isBalance = title === 'Current balance'
 
   return (

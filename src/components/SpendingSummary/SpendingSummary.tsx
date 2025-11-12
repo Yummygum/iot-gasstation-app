@@ -3,6 +3,8 @@ import { ComponentType, SVGProps } from 'react'
 import IOTASymbol from '@/components/ui/IOTASymbol'
 import { Item, ItemContent } from '@/components/ui/item'
 
+import IOTAAmount from '../IOTAAmount'
+
 interface ISpendingData {
   title: string
   amount: number
@@ -42,10 +44,7 @@ const SpendingSummary = () => {
               <div className="flex items-center gap-2">
                 <span>{data.title}</span>
               </div>
-              <div className="flex gap-2 font-medium">
-                {data.icon && <data.icon className="h-4 w-4" />}
-                {data.amount}
-              </div>
+              <IOTAAmount amount={data.amount} hasIOTAMark size="sm" />
             </div>
 
             {data.subItems &&
@@ -57,10 +56,7 @@ const SpendingSummary = () => {
                   <div className="flex items-center gap-2">
                     <span>{subItem.title}</span>
                   </div>
-                  <div className="flex gap-2 font-medium">
-                    {subItem.icon && <subItem.icon className="h-4 w-4" />}
-                    {subItem.amount}
-                  </div>
+                  <IOTAAmount amount={subItem.amount} hasIOTAMark size="sm" />
                 </div>
               ))}
           </div>

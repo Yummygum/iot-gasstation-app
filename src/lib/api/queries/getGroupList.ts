@@ -6,6 +6,7 @@ const GET_GROUP_LIST = graphql(`
       name
       groupId
       balance
+      logoUri
       members
     }
   }

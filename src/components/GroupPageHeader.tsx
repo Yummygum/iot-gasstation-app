@@ -6,7 +6,8 @@ import { Suspense } from 'react'
 import { graphql } from '../lib/api/graphql'
 import AddClientDialog from './AddClientDialog'
 import GroupDialog from './GroupDialog'
-import { Avatar, AvatarFallback } from './ui/avatar'
+import IOTAAmount from './IOTAAmount'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import { DialogTrigger } from './ui/dialog'
 import { Skeleton } from './ui/skeleton'
@@ -14,7 +15,12 @@ import { Skeleton } from './ui/skeleton'
 const GROUP_FRAGMENT = graphql(`
   fragment GroupFragment on GroupDto {
     name
-    balance
+    logoUri
+    metrics {
+      allTime {
+        totalTransactions
+      }
+    }
   }
 `)
 
@@ -36,7 +42,9 @@ const GroupPageHeader = () => {
         {/* <SidebarTrigger className="-ml-1" /> */}
 
         <Avatar className="size-12 rounded-md">
-          {/* <AvatarImage className="rounded-none" src={logoUrl} /> */}
+          {data.logoUri && (
+            <AvatarImage className="rounded-none" src={data.logoUri} />
+          )}
           <AvatarFallback className="w-full rounded-none text-center">
             {data.name?.charAt(0).toUpperCase()}
             {data.name?.charAt(1).toUpperCase()}
@@ -47,8 +55,17 @@ const GroupPageHeader = () => {
           <h1 className="truncate text-2xl leading-normal font-medium">
             {data.name}
           </h1>
-          <p className="text-muted-foreground truncate text-sm">
-            Current balance: {data.balance}
+          <p className="text-muted-foreground flex items-center gap-1 truncate text-sm">
+            Total transactions:{' '}
+            {data.metrics?.allTime?.totalTransactions ? (
+              <IOTAAmount
+                amount={data.metrics.allTime.totalTransactions}
+                hasIOTAMark={false}
+                size="xs"
+              />
+            ) : (
+              'Unknown'
+            )}
           </p>
         </div>
 
@@ -61,7 +78,11 @@ const GroupPageHeader = () => {
           </DialogTrigger>
         </AddClientDialog>
 
-        <GroupDialog groupId={groupId} name={data.name}>
+        <GroupDialog
+          groupId={groupId}
+          logoUri={data.logoUri || undefined}
+          name={data.name}
+        >
           <DialogTrigger asChild>
             <Button variant="outline">
               <SettingsIcon />

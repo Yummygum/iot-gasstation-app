@@ -1,18 +1,12 @@
 'use client'
 import { ArrowLeftRight } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 import { parseNumber } from '@/lib/utils'
 
 import IOTAAmount from './IOTAAmount'
-
-// Mock Function
-async function fetchExchangeRate(): Promise<number> {
-  return new Promise((resolve) => {
-    // Simulate network latency using setTimeout (140ms delay)
-    setTimeout(() => resolve(8.57), 2000)
-  })
-}
 
 const sanitizeInput = (value: string): string =>
   value
@@ -20,54 +14,94 @@ const sanitizeInput = (value: string): string =>
     .replace(/[,.]{2,}/g, (str) => str[0])
     .replace(/(?:[,.].*)[,.]/g, (str) => str.slice(0, -1))
 
+/**
+ * Formats IOTA amount to max 2 decimals OR 5 characters
+ * Returns the formatted value and whether it was truncated
+ */
+function formatIotaAmount(value: number): {
+  formatted: number
+  isTruncated: boolean
+  exactValue: number
+} {
+  if (!value || value === 0) {
+    return { formatted: 0, isTruncated: false, exactValue: 0 }
+  }
+
+  // First, format to 2 decimals
+  const twoDecimals = Math.round(value * 100) / 100
+  const twoDecimalsString = twoDecimals.toString()
+
+  // If 2 decimals is 5 characters or less, use it
+  if (twoDecimalsString.length <= 5) {
+    return {
+      formatted: twoDecimals,
+      isTruncated: Math.abs(twoDecimals - value) > 0.0001,
+      exactValue: value
+    }
+  }
+
+  // Otherwise, truncate to 5 characters
+  const truncatedString = twoDecimalsString.slice(0, 5)
+  const truncated = parseFloat(truncatedString)
+
+  return {
+    formatted: truncated,
+    isTruncated: true,
+    exactValue: value
+  }
+}
+
 interface CurrencyConverterProps {
   name?: string
 }
 
 const CurrencyConverter = ({ name = 'euroAmount' }: CurrencyConverterProps) => {
   const [euro, setEuro] = useState('')
-  const [rate, setRate] = useState<number | null>(null)
+  const { currency } = useCurrency()
+  const { exchangeRate } = useExchangeRate()
 
-  useEffect(() => {
-    const loadRate = async () => {
-      try {
-        setRate(await fetchExchangeRate())
-      } catch {
-        setRate(null)
-      }
-    }
+  const parsedAmount = parseNumber(euro)
+  // exchangeRate is the price of 1 IOTA in the selected currency
+  const exactValue = exchangeRate ? exchangeRate * parsedAmount : 0
 
-    loadRate()
-  }, [])
-
-  const parsedEuro = parseNumber(euro)
-  const computedValue = rate ? Math.round(parsedEuro * rate) : 0
+  const {
+    formatted,
+    isTruncated,
+    exactValue: exactIotaValue
+  } = useMemo(() => formatIotaAmount(exactValue), [exactValue])
 
   return (
-    <fieldset className="text-center">
+    <fieldset className="pb-4 text-center">
       <div className="flex items-center justify-center gap-6 text-5xl font-light text-gray-500">
-        <div className="flex items-center gap-2">
-          <span className="text-4xl font-semibold">€</span>
+        <div className="flex items-center gap-2 py-4">
+          <span className="text-4xl font-semibold">
+            {currency === 'EUR' ? '€' : '$'}
+          </span>
           <input
             className="w-32 bg-transparent text-center text-4xl font-light outline-none"
             inputMode="decimal"
             name={name}
             onChange={(event) => setEuro(sanitizeInput(event.target.value))}
-            placeholder="00,00"
+            placeholder={currency === 'EUR' ? '00,00' : '00.00'}
             value={euro}
           />
-          <input name="iotaAmount" type="hidden" value={computedValue} />
+          <input name="iotaAmount" type="hidden" value={exactValue} />
         </div>
         <ArrowLeftRight className="h-8 w-8 text-gray-400" />
         <output
           aria-live="polite"
-          className="flex w-40 items-center justify-center"
+          className="relative flex w-40 flex-col items-center justify-center"
         >
-          <IOTAAmount amount={computedValue} hasIOTAMark size="xl" />
+          <IOTAAmount amount={formatted} hasIOTAMark size="xl" />
+          {isTruncated && (
+            <p className="text-muted-foreground absolute -bottom-5 mt-1 font-mono text-xs">
+              {exactIotaValue.toLocaleString()}
+            </p>
+          )}
         </output>
       </div>
       <p className="mt-6 text-gray-500">
-        {rate
+        {exchangeRate
           ? 'Exchange rates based on current market value'
           : 'Loading rate...'}
       </p>

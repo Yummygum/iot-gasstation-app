@@ -4,17 +4,19 @@ import { cn } from '@/lib/utils'
 
 const IOTASymbol = ({
   className,
-  size = 32
+  size = 32,
+  isInverted = false
 }: {
   className?: string
   size?: number
+  isInverted?: boolean
 }) => {
   return (
     <Image
       alt="IOTA Symbol"
-      className={cn('inline-block dark:invert', className)}
+      className={cn('inline-block', className)}
       height={size}
-      src="/iota-symbol.svg"
+      src={isInverted ? '/iota-symbol-inverted.svg' : '/iota-symbol.svg'}
       width={size}
     />
   )
