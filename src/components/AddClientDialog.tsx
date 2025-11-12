@@ -220,7 +220,7 @@ const AddClientDialog = ({
           }}
         >
           <DialogHeader className="mb-5">
-            <DialogTitle>Add Client</DialogTitle>
+            <DialogTitle>Add client</DialogTitle>
             <DialogDescription>
               Add either a Organizational client or Individual client
             </DialogDescription>
@@ -452,7 +452,7 @@ const AddClientDialog = ({
                   {isLoading ? (
                     <LoaderIcon className="animate-spin" />
                   ) : (
-                    'Add Client'
+                    'Add client'
                   )}
                 </Button>
               </DialogFooter>

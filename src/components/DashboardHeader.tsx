@@ -44,7 +44,7 @@ const DashboardHeader = () => {
             <DialogTrigger asChild>
               <Button variant="outline">
                 <PlusIcon />
-                Add Client
+                Add client
               </Button>
             </DialogTrigger>
           </AddClientDialog>

@@ -72,11 +72,11 @@ const BudgetBar = ({ groupId }: BudgetBarProps) => {
         {loading &&
           Array.from({ length: 3 }).map((_, idx) => (
             <div
-              className="flex w-full flex-col items-start gap-x-10 gap-y-2"
+              className="flex w-full flex-col items-start gap-x-10 gap-y-1"
               key={quickHash(`skeleton-${idx}`)}
             >
               <Skeleton className="bg-primary/10 h-4 w-5/6" key={`${idx}-1`} />
-              <Skeleton className="bg-primary/10 h-7 w-2/3" key={`${idx}-2`} />
+              <Skeleton className="bg-primary/10 h-6 w-2/3" key={`${idx}-2`} />
             </div>
           ))}
       </ItemContent>

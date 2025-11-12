@@ -31,7 +31,7 @@ const GroupPageHeader = () => {
   })
 
   return (
-    <header className="flex w-full items-center gap-3 px-6 py-8">
+    <header className="flex w-full items-center gap-3 px-4 py-8">
       <Suspense fallback={<GroupPageHeaderSkeleton />}>
         {/* <SidebarTrigger className="-ml-1" /> */}
 
@@ -56,7 +56,7 @@ const GroupPageHeader = () => {
           <DialogTrigger asChild>
             <Button variant="outline">
               <PlusIcon />
-              Add Client
+              Add client
             </Button>
           </DialogTrigger>
         </AddClientDialog>
