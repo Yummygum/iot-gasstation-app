@@ -2,8 +2,8 @@
 import { useQuery } from '@apollo/client/react'
 
 import { useApolloSubscription } from '@/hooks/useApolloSubscription'
-import TOKEN_BALANCE from '@/lib/api/queries/tokenBalance'
-import TOKEN_BALANCE_UPDATES_SUBSCRIPTION from '@/lib/api/subscriptions/tokenBalanceUpdates'
+import GET_SPONSOR_WALLET from '@/lib/api/queries/getSponsorWallet'
+import SPONSOR_WALLET_UPDATES_SUBSCRIPTION from '@/lib/api/subscriptions/sponsorWalletUpdates'
 
 import IOTAAmount from './IOTAAmount'
 import { Skeleton } from './ui/skeleton'
@@ -13,11 +13,12 @@ interface ITokenBalanceProps {
 }
 
 const TokenBalance = ({ hasIOTAMark = true }: ITokenBalanceProps) => {
-  const { data, subscribeToMore, loading, dataState } = useQuery(TOKEN_BALANCE)
+  const { data, subscribeToMore, loading, dataState } =
+    useQuery(GET_SPONSOR_WALLET)
 
   useApolloSubscription({
     subscribeToMore,
-    document: TOKEN_BALANCE_UPDATES_SUBSCRIPTION,
+    document: SPONSOR_WALLET_UPDATES_SUBSCRIPTION,
     onUpdate: (prev, update) => ({
       ...prev,
       tokenBalance: update.tokenBalanceUpdates.balance
@@ -28,7 +29,7 @@ const TokenBalance = ({ hasIOTAMark = true }: ITokenBalanceProps) => {
     <Skeleton className="h-5 w-full bg-white/75" />
   ) : (
     <IOTAAmount
-      amount={data?.tokenBalance}
+      amount={data?.getSponsorWallet?.balance}
       hasIOTAMark={hasIOTAMark}
       size="sm"
     />

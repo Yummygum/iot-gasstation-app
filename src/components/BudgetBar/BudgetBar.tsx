@@ -3,7 +3,7 @@ import { useFragment } from '@apollo/client/react'
 import { graphql } from 'gql.tada'
 import { useEffect, useState } from 'react'
 
-import { quickHash } from '@/lib/quickHash'
+import { quickHash } from '@/lib/utils/quickHash'
 
 import AllocateFundsDialog from '../AllocateFundsDialog'
 import { Button } from '../ui/button'

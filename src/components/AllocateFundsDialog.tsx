@@ -76,7 +76,7 @@ const AllocateFundsDialog = ({
           <DialogHeader className="mb-6">
             <DialogTitle>Allocate budget</DialogTitle>
             <p className="text-muted-foreground text-sm">
-              Drain or top up the Allocated budget for Hogeschool van Amsterdam
+              Drain or top up the Allocated budget for this group
             </p>
             <DialogClose />
           </DialogHeader>

@@ -1,7 +1,7 @@
 import { Separator } from '@radix-ui/react-separator'
 import { Fragment } from 'react'
 
-import { quickHash } from '@/lib/quickHash'
+import { quickHash } from '@/lib/utils/quickHash'
 
 import IOTAAmount from '../IOTAAmount'
 import { ValueRenderer } from '../ValueRenderer'

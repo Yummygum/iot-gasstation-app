@@ -1,5 +1,6 @@
 'use client'
 
+import { useQuery } from '@apollo/client/react'
 import {
   BarChart2 as BarChartIcon,
   PieChart as PieChartIcon
@@ -7,6 +8,11 @@ import {
 import { ComponentProps, useMemo, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis } from 'recharts'
 import { twMerge } from 'tailwind-merge'
+
+import type {
+  BarChartDataPoint,
+  PieChartDataPoint
+} from '@/lib/utils/convertTransactionsToChartData'
 
 import {
   ChartConfig,
@@ -21,6 +27,12 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import GET_TRANSACTIONS_LIST from '@/lib/api/queries/getTransactionsList'
+import { calculateDateRange } from '@/lib/utils'
+import {
+  convertToBarChartData,
+  convertToPieChartData
+} from '@/lib/utils/convertTransactionsToChartData'
 
 import { Button } from '../ui/button'
 import IOTASymbol from '../ui/IOTASymbol'
@@ -32,101 +44,6 @@ import {
   ItemTitle
 } from '../ui/item'
 
-// Static daily data (similar count to original), values adjusted slightly
-const chartData = [
-  { date: '2024-04-01', gas: 18 },
-  { date: '2024-04-02', gas: 12 },
-  { date: '2024-04-03', gas: 20 },
-  { date: '2024-04-04', gas: 26 },
-  { date: '2024-04-05', gas: 35 },
-  { date: '2024-04-06', gas: 28 },
-  { date: '2024-04-07', gas: 22 },
-  { date: '2024-04-08', gas: 39 },
-  { date: '2024-04-09', gas: 9 },
-  { date: '2024-04-10', gas: 24 },
-  { date: '2024-04-11', gas: 30 },
-  { date: '2024-04-12', gas: 27 },
-  { date: '2024-04-13', gas: 33 },
-  { date: '2024-04-14', gas: 15 },
-  { date: '2024-04-15', gas: 14 },
-  { date: '2024-04-16', gas: 16 },
-  { date: '2024-04-17', gas: 41 },
-  { date: '2024-04-18', gas: 34 },
-  { date: '2024-04-19', gas: 23 },
-  { date: '2024-04-20', gas: 10 },
-  { date: '2024-04-21', gas: 16 },
-  { date: '2024-04-22', gas: 24 },
-  { date: '2024-04-23', gas: 15 },
-  { date: '2024-04-24', gas: 36 },
-  { date: '2024-04-25', gas: 23 },
-  { date: '2024-04-26', gas: 11 },
-  { date: '2024-04-27', gas: 36 },
-  { date: '2024-04-28', gas: 14 },
-  { date: '2024-04-29', gas: 28 },
-  { date: '2024-04-30', gas: 42 },
-  { date: '2024-05-01', gas: 18 },
-  { date: '2024-05-02', gas: 27 },
-  { date: '2024-05-03', gas: 23 },
-  { date: '2024-05-04', gas: 35 },
-  { date: '2024-05-05', gas: 45 },
-  { date: '2024-05-06', gas: 44 },
-  { date: '2024-05-07', gas: 36 },
-  { date: '2024-05-08', gas: 16 },
-  { date: '2024-05-09', gas: 24 },
-  { date: '2024-05-10', gas: 27 },
-  { date: '2024-05-11', gas: 31 },
-  { date: '2024-05-12', gas: 21 },
-  { date: '2024-05-13', gas: 20 },
-  { date: '2024-05-14', gas: 41 },
-  { date: '2024-05-15', gas: 44 },
-  { date: '2024-05-16', gas: 31 },
-  { date: '2024-05-17', gas: 46 },
-  { date: '2024-05-18', gas: 29 },
-  { date: '2024-05-19', gas: 22 },
-  { date: '2024-05-20', gas: 18 },
-  { date: '2024-05-21', gas: 12 },
-  { date: '2024-05-22', gas: 10 },
-  { date: '2024-05-23', gas: 26 },
-  { date: '2024-05-24', gas: 27 },
-  { date: '2024-05-25', gas: 22 },
-  { date: '2024-05-26', gas: 23 },
-  { date: '2024-05-27', gas: 39 },
-  { date: '2024-05-28', gas: 24 },
-  { date: '2024-05-29', gas: 11 },
-  { date: '2024-05-30', gas: 32 },
-  { date: '2024-05-31', gas: 19 },
-  { date: '2024-06-01', gas: 16 },
-  { date: '2024-06-02', gas: 44 },
-  { date: '2024-06-03', gas: 12 },
-  { date: '2024-06-04', gas: 41 },
-  { date: '2024-06-05', gas: 10 },
-  { date: '2024-06-06', gas: 27 },
-  { date: '2024-06-07', gas: 30 },
-  { date: '2024-06-08', gas: 35 },
-  { date: '2024-06-09', gas: 41 },
-  { date: '2024-06-10', gas: 17 },
-  { date: '2024-06-11', gas: 12 },
-  { date: '2024-06-12', gas: 46 },
-  { date: '2024-06-13', gas: 10 },
-  { date: '2024-06-14', gas: 39 },
-  { date: '2024-06-15', gas: 28 },
-  { date: '2024-06-16', gas: 35 },
-  { date: '2024-06-17', gas: 45 },
-  { date: '2024-06-18', gas: 12 },
-  { date: '2024-06-19', gas: 31 },
-  { date: '2024-06-20', gas: 37 },
-  { date: '2024-06-21', gas: 18 },
-  { date: '2024-06-22', gas: 29 },
-  { date: '2024-06-23', gas: 45 },
-  { date: '2024-06-24', gas: 15 },
-  { date: '2024-06-25', gas: 16 },
-  { date: '2024-06-26', gas: 41 },
-  { date: '2024-06-27', gas: 24 },
-  { date: '2024-06-28', gas: 16 },
-  { date: '2024-06-29', gas: 12 },
-  { date: '2024-06-30', gas: 20 }
-]
-
 const chartConfig = {
   gas: {
     label: 'Gas spent',
@@ -135,20 +52,62 @@ const chartConfig = {
   }
 } satisfies ChartConfig
 
-const GasChart = ({ className, ...props }: ComponentProps<'div'>) => {
+interface GasChartProps extends ComponentProps<'div'> {
+  groupId?: string
+}
+
+const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
   const [timeRangeDays, setTimeRangeDays] = useState(30)
   const [chartType, setChartType] = useState<'bar' | 'pie'>('bar')
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date)
-    const referenceDate = new Date('2024-06-30')
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - timeRangeDays)
-    return date >= startDate
+  // Calculate date range for the query
+  const { startDate, endDate } = useMemo(
+    () => calculateDateRange(timeRangeDays),
+    [timeRangeDays]
+  )
+
+  // Chart type flags
+  const isPieChart = chartType === 'pie'
+  const isBarChart = chartType === 'bar'
+
+  // Fetch data from API
+  const { data: queryData, loading } = useQuery(GET_TRANSACTIONS_LIST, {
+    variables: {
+      after: startDate.toISOString(),
+      before: endDate.toISOString()
+    }
   })
 
+  // Get transactions from API and filter by groupId if provided
+  const transactions = useMemo(() => {
+    const allTransactions = queryData?.getTransactionList || []
+
+    // If groupId is provided, filter transactions to only include those with matching groupId
+    if (groupId) {
+      return allTransactions.filter(
+        (transaction) => transaction.groupId === groupId
+      )
+    }
+
+    return allTransactions
+  }, [queryData, groupId])
+
+  // Convert transactions to chart data format
+  const chartData = useMemo(() => {
+    if (isBarChart) {
+      return convertToBarChartData(transactions, startDate, endDate)
+    }
+
+    return convertToPieChartData(transactions)
+  }, [transactions, isBarChart, startDate, endDate])
+
   const description = useMemo(() => {
-    return `Showing gas spent for the last ${timeRangeDays} days`
+    const timeframeLabels: Record<number, string> = {
+      7: 'Last 7 days',
+      30: 'Last 30 days',
+      90: 'Last 3 months'
+    }
+    return `Showing gas spent for ${timeframeLabels[timeRangeDays] || `the last ${timeRangeDays} days`}`
   }, [timeRangeDays])
 
   return (
@@ -162,7 +121,7 @@ const GasChart = ({ className, ...props }: ComponentProps<'div'>) => {
           <Button
             onClick={() => setChartType('pie')}
             size="icon"
-            variant={chartType === 'pie' ? 'outlineActive' : 'outline'}
+            variant={isPieChart ? 'outlineActive' : 'outline'}
           >
             <PieChartIcon />
           </Button>
@@ -170,7 +129,7 @@ const GasChart = ({ className, ...props }: ComponentProps<'div'>) => {
           <Button
             onClick={() => setChartType('bar')}
             size="icon"
-            variant={chartType === 'bar' ? 'outlineActive' : 'outline'}
+            variant={isBarChart ? 'outlineActive' : 'outline'}
           >
             <BarChartIcon />
           </Button>
@@ -205,10 +164,14 @@ const GasChart = ({ className, ...props }: ComponentProps<'div'>) => {
           className="aspect-auto h-[250px] w-full"
           config={chartConfig}
         >
-          {chartType === 'bar' ? (
+          {loading ? (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-muted-foreground">Loading chart data...</p>
+            </div>
+          ) : isBarChart ? (
             <BarChart
               accessibilityLayer
-              data={filteredData}
+              data={chartData as BarChartDataPoint[]}
               margin={{
                 left: 12,
                 right: 12
@@ -240,7 +203,7 @@ const GasChart = ({ className, ...props }: ComponentProps<'div'>) => {
                         year: 'numeric'
                       })
                     }}
-                    nameKey="views"
+                    nameKey="gas"
                   />
                 }
               />
@@ -257,10 +220,11 @@ const GasChart = ({ className, ...props }: ComponentProps<'div'>) => {
                 cursor={false}
               />
               <Pie
-                data={chartData}
-                dataKey="visitors"
+                data={chartData as PieChartDataPoint[]}
+                dataKey="value"
                 innerRadius={60}
-                nameKey="browser"
+                label={({ name, value }) => `${name}: ${value}`}
+                nameKey="name"
               />
             </PieChart>
           )}

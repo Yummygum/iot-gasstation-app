@@ -232,7 +232,7 @@ const ClientTable = () => {
           onChange={(event) =>
             table.getColumn('name')?.setFilterValue(event.target.value)
           }
-          placeholder="Filter emails..."
+          placeholder="Filter clients..."
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
         />
       </div>

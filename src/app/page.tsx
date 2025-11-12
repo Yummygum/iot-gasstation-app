@@ -1,5 +1,6 @@
 'use client'
 import BudgetBar from '@/components/BudgetBar/BudgetBar'
+import GasChart from '@/components/Chart/GasChart'
 import DashboardHeader from '@/components/DashboardHeader'
 import IOTAAmount from '@/components/IOTAAmount'
 import NotifyItem from '@/components/NotifyItem'
@@ -11,6 +12,8 @@ const Dashboard = () => {
       <DashboardHeader />
 
       <BudgetBar />
+
+      <GasChart />
 
       <SpendingSummary />
 

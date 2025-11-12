@@ -6,6 +6,7 @@ export const graphql = initGraphQLTada<{
   introspection: introspection
   scalars: {
     Boolean: boolean
+    DateTime: string
     Float: number
     ID: string
     Int: number

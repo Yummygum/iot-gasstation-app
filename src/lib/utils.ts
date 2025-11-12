@@ -1,47 +1,25 @@
-import type { ClassValue } from 'clsx'
+/**
+ * Re-exports all utility functions for backward compatibility
+ * Individual utilities are in lib/utils/ directory
+ */
 
-import { Table } from '@tanstack/react-table'
-import { clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+export { calculateDateRange } from './utils/calculateDateRange'
+export { cn } from './utils/cn'
+export { normalizeClientUrl } from './utils/normalizeClientUrl'
+export { parseNumber } from './utils/parseNumber'
+export { tableMeta } from './utils/tableMeta'
+export { quickHash } from './utils/quickHash'
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+// Re-export all exports from convertTransactionsToChartData
+export type {
+  BarChartDataPoint,
+  ChartType,
+  PieChartDataPoint,
+  Transaction
+} from './utils/convertTransactionsToChartData'
+export {
+  convertToBarChartData,
+  convertToPieChartData,
+  convertTransactionsToChartData
+} from './utils/convertTransactionsToChartData'
 
-export function parseNumber(input: string): number {
-  if (!input) {
-    return 0
-  }
-
-  const parsed = parseFloat(input.replace(',', '.'))
-  return Number.isNaN(parsed) ? 0 : parsed
-}
-
-export const tableMeta =
-  <Meta extends object>() =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (table: Table<any>) =>
-    table.options.meta as Meta
-
-// eslint-disable-next-line max-statements
-export function normalizeClientUrl(raw: string): string {
-  const input = (raw || '').trim()
-  if (!input) {
-    return ''
-  }
-
-  const schemeMatch = input.match(/^(?:https?:\/\/)/i)
-  const scheme = schemeMatch ? schemeMatch[0].toLowerCase() : ''
-  const withoutScheme = input.replace(/^https?:\/\//i, '')
-
-  const [firstPart] = withoutScheme.split('/')
-  const [noQuery] = firstPart.split('?')
-  const [hostOnly] = noQuery.split('#')
-
-  if (!hostOnly) {
-    return input
-  }
-
-  const hadSlashAfterHost = withoutScheme.startsWith(`${hostOnly}/`)
-  return `${scheme}${hostOnly}${hadSlashAfterHost ? '/' : ''}`
-}
