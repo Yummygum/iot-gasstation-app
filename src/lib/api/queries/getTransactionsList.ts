@@ -6,6 +6,7 @@ const GET_TRANSACTIONS_LIST = graphql(`
   query GetTransactionList($after: DateTime!, $before: DateTime!) {
     getTransactionList(after: $after, before: $before) {
       clientId
+      clientName
       groupId
       timestamp
       transactionFee

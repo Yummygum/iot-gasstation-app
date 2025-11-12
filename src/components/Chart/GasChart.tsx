@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
 import GET_TRANSACTIONS_LIST from '@/lib/api/queries/getTransactionsList'
 import { calculateDateRange } from '@/lib/utils'
 import {
@@ -57,25 +56,6 @@ const chartConfig = {
 
 interface GasChartProps extends ComponentProps<'div'> {
   groupId?: string
-}
-
-/**
- * Creates a map of clientId -> name from client list data
- */
-function createClientNameMap(clientData?: {
-  getClientList?: Array<{ clientId?: string; name?: string }>
-}): Map<string, string> {
-  const map = new Map<string, string>()
-
-  if (clientData?.getClientList) {
-    for (const client of clientData.getClientList) {
-      if (client.clientId && client.name) {
-        map.set(client.clientId, client.name)
-      }
-    }
-  }
-
-  return map
 }
 
 /**
@@ -228,9 +208,6 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
     }
   })
 
-  // Fetch client list to get client names
-  const { data: clientData } = useQuery(GET_CLIENT_LIST)
-
   // Get transactions from API and filter by groupId if provided
   const transactions = useMemo(() => {
     const allTransactions = queryData?.getTransactionList || []
@@ -240,17 +217,16 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
 
   // Convert transactions to chart data format and check if empty
   const { chartData, hasNoData, description } = useMemo(() => {
-    const clientNameMap = createClientNameMap(clientData)
     const data = isBarChart
-      ? convertToBarChartData(transactions, startDate, endDate, clientNameMap)
-      : convertToPieChartData(transactions, clientNameMap)
+      ? convertToBarChartData(transactions, startDate, endDate)
+      : convertToPieChartData(transactions)
 
     return {
       chartData: data,
       hasNoData: hasNoChartData(data, isBarChart),
       description: getChartDescription(timeRangeDays)
     }
-  }, [transactions, isBarChart, startDate, endDate, clientData, timeRangeDays])
+  }, [transactions, isBarChart, startDate, endDate, timeRangeDays])
 
   return (
     <Item className={twMerge('pt-0', className)} variant="outline" {...props}>

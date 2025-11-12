@@ -8,6 +8,7 @@ import { formatDateToDay } from './formatDateToDay'
 export interface Transaction {
   groupId: string
   clientId: string
+  clientName?: string
   transactionFee: number
   timestamp: string
 }
@@ -33,17 +34,18 @@ export type ChartType = 'bar' | 'pie'
 
 /**
  * Groups transactions by day and sums transaction fees
- * Also tracks client breakdown per day
+ * Also tracks client breakdown per day with client names
  * Uses UTC dates to ensure consistent grouping regardless of local timezone
  */
-function groupTransactionsByDay(
-  transactions: Transaction[]
-): {
+// eslint-disable-next-line max-statements
+function groupTransactionsByDay(transactions: Transaction[]): {
   dailyTotals: Map<string, number>
   dailyClientBreakdown: Map<string, Map<string, number>>
+  clientNameMap: Map<string, string>
 } {
   const dailyTotals = new Map<string, number>()
   const dailyClientBreakdown = new Map<string, Map<string, number>>()
+  const clientNameMap = new Map<string, string>()
 
   for (const transaction of transactions) {
     // Parse timestamp and use UTC to avoid timezone shifts
@@ -54,25 +56,38 @@ function groupTransactionsByDay(
     const currentTotal = dailyTotals.get(dayKey) || 0
     dailyTotals.set(dayKey, currentTotal + transaction.transactionFee)
 
+    // Store client name if available
+    if (transaction.clientName) {
+      clientNameMap.set(transaction.clientId, transaction.clientName)
+    }
+
     // Update client breakdown for this day
     if (!dailyClientBreakdown.has(dayKey)) {
       dailyClientBreakdown.set(dayKey, new Map<string, number>())
     }
+
     const dayClients = dailyClientBreakdown.get(dayKey)!
+
     const clientTotal = dayClients.get(transaction.clientId) || 0
-    dayClients.set(transaction.clientId, clientTotal + transaction.transactionFee)
+    dayClients.set(
+      transaction.clientId,
+      clientTotal + transaction.transactionFee
+    )
   }
 
-  return { dailyTotals, dailyClientBreakdown }
+  return { dailyTotals, dailyClientBreakdown, clientNameMap }
 }
 
 /**
  * Groups transactions by client ID and sums transaction fees
+ * Also builds a map of clientId -> clientName
  */
-function groupTransactionsByClient(
-  transactions: Transaction[]
-): Map<string, number> {
+function groupTransactionsByClient(transactions: Transaction[]): {
+  clientTotals: Map<string, number>
+  clientNameMap: Map<string, string>
+} {
   const clientTotals = new Map<string, number>()
+  const clientNameMap = new Map<string, string>()
 
   for (const transaction of transactions) {
     const currentTotal = clientTotals.get(transaction.clientId) || 0
@@ -80,23 +95,25 @@ function groupTransactionsByClient(
       transaction.clientId,
       currentTotal + transaction.transactionFee
     )
+
+    // Store client name if available
+    if (transaction.clientName) {
+      clientNameMap.set(transaction.clientId, transaction.clientName)
+    }
   }
 
-  return clientTotals
+  return { clientTotals, clientNameMap }
 }
 
 /**
- * Gets a display name for a client, using the name if available, otherwise falling back to shortened clientId
+ * Gets a display name for a client, using the name from the map if available, otherwise falling back to shortened clientId
  */
 function getClientDisplayName(
   clientId: string,
-  clientNameMap?: Map<string, string>
+  clientNameMap: Map<string, string>
 ): string {
-  if (clientNameMap?.has(clientId)) {
-    const name = clientNameMap.get(clientId)!
-    return name || `Client ${clientId.slice(0, 8)}...`
-  }
-  return `Client ${clientId.slice(0, 8)}...`
+  const name = clientNameMap.get(clientId)
+  return name || `Client ${clientId.slice(0, 8)}...`
 }
 
 /**
@@ -107,8 +124,7 @@ function getClientDisplayName(
 export function convertToBarChartData(
   transactions: Transaction[],
   startDate?: Date,
-  endDate?: Date,
-  clientNameMap?: Map<string, string>
+  endDate?: Date
 ): BarChartDataPoint[] {
   // Filter transactions to only include those within the date range
   let filteredTransactions = transactions
@@ -119,7 +135,7 @@ export function convertToBarChartData(
     })
   }
 
-  const { dailyTotals, dailyClientBreakdown } =
+  const { dailyTotals, dailyClientBreakdown, clientNameMap } =
     groupTransactionsByDay(filteredTransactions)
 
   // If date range is provided, fill in missing days
@@ -139,7 +155,7 @@ export function convertToBarChartData(
               name: getClientDisplayName(clientId, clientNameMap),
               amount
             }))
-            .sort((a, b) => b.amount - a.amount)
+            .sort((itemA, itemB) => itemB.amount - itemA.amount)
         : []
 
       return {
@@ -158,10 +174,10 @@ export function convertToBarChartData(
  * Groups transactions by client ID
  */
 export function convertToPieChartData(
-  transactions: Transaction[],
-  clientNameMap?: Map<string, string>
+  transactions: Transaction[]
 ): PieChartDataPoint[] {
-  const clientTotals = groupTransactionsByClient(transactions)
+  const { clientTotals, clientNameMap } =
+    groupTransactionsByClient(transactions)
 
   // Convert to array and sort by value (descending)
   const dataPoints: PieChartDataPoint[] = Array.from(clientTotals.entries())
@@ -181,12 +197,11 @@ export function convertTransactionsToChartData(
   transactions: Transaction[],
   chartType: ChartType,
   startDate?: Date,
-  endDate?: Date,
-  clientNameMap?: Map<string, string>
+  endDate?: Date
 ): BarChartDataPoint[] | PieChartDataPoint[] {
   if (chartType === 'bar') {
-    return convertToBarChartData(transactions, startDate, endDate, clientNameMap)
+    return convertToBarChartData(transactions, startDate, endDate)
   }
 
-  return convertToPieChartData(transactions, clientNameMap)
+  return convertToPieChartData(transactions)
 }
