@@ -8,6 +8,11 @@ const GET_GROUP_LIST = graphql(`
       balance
       logoUri
       members
+      metrics {
+        allTime {
+          totalTransactions
+        }
+      }
     }
   }
 `)

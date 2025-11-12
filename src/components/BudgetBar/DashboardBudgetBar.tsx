@@ -1,4 +1,4 @@
-import { useSuspenseFragment } from '@apollo/client/react'
+import { useFragment } from '@apollo/client/react'
 
 import { graphql } from '@/lib/api/graphql'
 import { formatDatabaseDateToDay } from '@/lib/utils/formatDateToDay'
@@ -6,18 +6,27 @@ import { formatDatabaseDateToDay } from '@/lib/utils/formatDateToDay'
 import BudgetBar from './BudgetBar'
 import { BudgetBarItemProps } from './BudgetBarItem'
 
-const DASHBOARD_BUDGET_BAR_FRAGMENT = graphql(`
+interface DashboardBudgetBarProps {
+  isLoading: boolean
+  sponsorWalletId?: string
+}
+
+export const DASHBOARD_BUDGET_BAR_FRAGMENT = graphql(`
   fragment DashboardBudgetBarFragment on SponsorWalletDto {
     estimatedRemainingTransactions
     estimatedDepletionDate
   }
 `)
 
-const DashboardBudgetBar = () => {
-  const { data } = useSuspenseFragment({
+const DashboardBudgetBar = ({
+  isLoading,
+  sponsorWalletId
+}: DashboardBudgetBarProps) => {
+  const { data } = useFragment({
     fragment: DASHBOARD_BUDGET_BAR_FRAGMENT,
     from: {
-      __typename: 'SponsorWalletDto'
+      __typename: 'SponsorWalletDto',
+      sponsorWalletId
     }
   })
 
@@ -36,7 +45,7 @@ const DashboardBudgetBar = () => {
     }
   ]
 
-  return <BudgetBar isLoading={false} values={values} />
+  return <BudgetBar isLoading={isLoading} values={values} />
 }
 
 export default DashboardBudgetBar

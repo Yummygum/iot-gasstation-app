@@ -1,12 +1,10 @@
 import { useFragment } from '@apollo/client/react'
 import { PlusIcon, SettingsIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { Suspense } from 'react'
 
 import { graphql } from '../lib/api/graphql'
 import AddClientDialog from './AddClientDialog'
 import GroupDialog from './GroupDialog'
-import IOTAAmount from './IOTAAmount'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import { DialogTrigger } from './ui/dialog'
@@ -16,6 +14,7 @@ const GROUP_FRAGMENT = graphql(`
   fragment GroupFragment on GroupDto {
     name
     logoUri
+    members
     metrics {
       allTime {
         totalTransactions
@@ -24,11 +23,11 @@ const GROUP_FRAGMENT = graphql(`
   }
 `)
 
-const GroupPageHeader = () => {
+const GroupPageHeader = ({ isLoading }: { isLoading: boolean }) => {
   const params = useParams()
   const groupId = (params.id ?? '').toString()
 
-  const { data } = useFragment({
+  const { data, dataState } = useFragment({
     fragment: GROUP_FRAGMENT,
     from: {
       __typename: 'GroupDto',
@@ -36,61 +35,63 @@ const GroupPageHeader = () => {
     }
   })
 
+  if (isLoading || dataState !== 'complete') {
+    return <GroupPageHeaderSkeleton />
+  }
+
   return (
     <header className="flex w-full items-center gap-3 px-4 py-8">
-      <Suspense fallback={<GroupPageHeaderSkeleton />}>
-        {/* <SidebarTrigger className="-ml-1" /> */}
+      {/* <SidebarTrigger className="-ml-1" /> */}
 
-        <Avatar className="size-12 rounded-md">
-          {data.logoUri && (
-            <AvatarImage className="rounded-none" src={data.logoUri} />
-          )}
-          <AvatarFallback className="w-full rounded-none text-center">
-            {data.name?.charAt(0).toUpperCase()}
-            {data.name?.charAt(1).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+      <Avatar className="size-12 rounded-md">
+        {data.logoUri && (
+          <AvatarImage className="rounded-none" src={data.logoUri} />
+        )}
+        <AvatarFallback className="w-full rounded-none text-center">
+          {data.name?.charAt(0).toUpperCase()}
+          {data.name?.charAt(1).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
 
-        <div className="flex w-full flex-col overflow-hidden">
-          <h1 className="truncate text-2xl leading-normal font-medium">
-            {data.name}
-          </h1>
-          <p className="text-muted-foreground flex items-center gap-1 truncate text-sm">
-            Total transactions:{' '}
-            {data.metrics?.allTime?.totalTransactions ? (
-              <IOTAAmount
-                amount={data.metrics.allTime.totalTransactions}
-                hasIOTAMark={false}
-                size="xs"
-              />
-            ) : (
-              'Unknown'
-            )}
-          </p>
-        </div>
+      <div className="flex w-full flex-col overflow-hidden">
+        <h1 className="truncate text-2xl leading-normal font-medium">
+          {data.name ?? 'Group'}
+        </h1>
+        <p className="text-muted-foreground inline-flex items-center gap-2 truncate text-sm">
+          <span>
+            {data.metrics?.allTime?.totalTransactions
+              ? `${data.metrics?.allTime?.totalTransactions} total transactions`
+              : 'No recent transactions'}
+          </span>
+          <span>-</span>
+          <span>
+            {data.members?.length} client
+            {data.members?.length === 1 ? '' : 's'}
+          </span>
+        </p>
+      </div>
 
-        <AddClientDialog groupId={groupId}>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <PlusIcon />
-              Add client
-            </Button>
-          </DialogTrigger>
-        </AddClientDialog>
+      <AddClientDialog groupId={groupId}>
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            <PlusIcon />
+            Add client
+          </Button>
+        </DialogTrigger>
+      </AddClientDialog>
 
-        <GroupDialog
-          groupId={groupId}
-          logoUri={data.logoUri || undefined}
-          name={data.name}
-        >
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <SettingsIcon />
-              Settings
-            </Button>
-          </DialogTrigger>
-        </GroupDialog>
-      </Suspense>
+      <GroupDialog
+        groupId={groupId}
+        logoUri={data.logoUri || undefined}
+        name={data.name}
+      >
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            <SettingsIcon />
+            Settings
+          </Button>
+        </DialogTrigger>
+      </GroupDialog>
     </header>
   )
 }

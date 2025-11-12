@@ -17,7 +17,7 @@ interface GroupPageProps {
 const GroupPage = ({ params }: GroupPageProps) => {
   const { id } = use(params)
 
-  useQuery(GET_GROUP, {
+  const { data, loading } = useQuery(GET_GROUP, {
     variables: {
       groupId: id
     }
@@ -25,14 +25,14 @@ const GroupPage = ({ params }: GroupPageProps) => {
 
   return (
     <div>
-      <GroupPageHeader />
+      <GroupPageHeader isLoading={loading} />
 
       <section className="flex flex-col gap-10 p-4">
-        <GroupBudgetBar groupId={id} />
+        <GroupBudgetBar groupId={id} isLoading={loading} />
 
         <GasChart groupId={id} />
 
-        <ClientTable />
+        <ClientTable groupId={id} groupName={data?.getGroup?.name} />
       </section>
     </div>
   )

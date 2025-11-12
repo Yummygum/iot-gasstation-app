@@ -6,8 +6,15 @@ const GET_GROUP = graphql(`
       groupId
       balance
       members
+      name
       estimatedRemainingTransactions
       estimatedDepletionDate
+      logoUri
+      metrics {
+        allTime {
+          totalTransactions
+        }
+      }
     }
   }
 `)

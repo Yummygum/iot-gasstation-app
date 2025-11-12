@@ -1,7 +1,6 @@
 'use client'
 import { useFragment } from '@apollo/client/react'
 import { PlusIcon } from 'lucide-react'
-import { Suspense } from 'react'
 
 import { graphql } from '@/lib/api/graphql'
 
@@ -12,7 +11,13 @@ import { Button } from './ui/button'
 import { DialogTrigger } from './ui/dialog'
 import { Skeleton } from './ui/skeleton'
 
-const DASHBOARD_HEADER_FRAGMENT = graphql(`
+interface DashboardHeaderProps {
+  sponsorWalletId?: string
+  isLoading: boolean
+  totalClients: number
+}
+
+const DASHBOARD_HEADER_WALLET_FRAGMENT = graphql(`
   fragment DashboardHeaderFragment on SponsorWalletDto {
     name
     logoUri
@@ -24,57 +29,71 @@ const DASHBOARD_HEADER_FRAGMENT = graphql(`
   }
 `)
 
-const DashboardHeader = () => {
-  const { data } = useFragment({
-    fragment: DASHBOARD_HEADER_FRAGMENT,
+const DashboardHeader = ({
+  sponsorWalletId,
+  totalClients,
+  isLoading
+}: DashboardHeaderProps) => {
+  const { data, dataState } = useFragment({
+    fragment: DASHBOARD_HEADER_WALLET_FRAGMENT,
     from: {
-      __typename: 'SponsorWalletDto'
+      __typename: 'SponsorWalletDto',
+      sponsorWalletId
     }
   })
 
+  if (isLoading || dataState !== 'complete') {
+    return <DashboardHeaderSkeleton />
+  }
+
   return (
     <header className="flex w-full items-center gap-3">
-      <Suspense fallback={<DashboardHeaderSkeleton />}>
-        <Avatar className="size-12 rounded-md">
-          {data.logoUri ? (
-            <AvatarImage className="rounded-none" src={data.logoUri} />
-          ) : (
-            <AvatarFallback className="w-full rounded-none text-center">
-              {data.name?.[0] ?? ''}
-            </AvatarFallback>
-          )}
-        </Avatar>
+      <Avatar className="size-12 rounded-md">
+        {data.logoUri ? (
+          <AvatarImage className="rounded-none" src={data.logoUri} />
+        ) : (
+          <AvatarFallback className="w-full rounded-none text-center">
+            {data.name?.[0] ?? ''}
+          </AvatarFallback>
+        )}
+      </Avatar>
 
-        <div className="flex w-full flex-col overflow-hidden">
-          <h1 className="truncate text-2xl leading-normal font-medium">
-            {data.name ?? 'Dashboard'}
-          </h1>
-          <p className="text-muted-foreground truncate text-sm">
-            Total transactions:{' '}
-            {data.metrics?.allTime?.totalTransactions ?? 'Unknown'}
-          </p>
-        </div>
+      <div className="flex w-full flex-col overflow-hidden">
+        <h1 className="truncate text-2xl leading-normal font-medium">
+          {data.name ?? 'Dashboard'}
+        </h1>
+        <p className="text-muted-foreground inline-flex items-center gap-2 truncate text-sm">
+          <span>
+            {data.metrics?.allTime?.totalTransactions
+              ? `${data.metrics?.allTime?.totalTransactions} total transactions`
+              : 'No recent transactions'}
+          </span>
+          <span>-</span>
+          <span>
+            {totalClients === 1 ? '1 client' : `${totalClients} clients`}
+          </span>
+        </p>
+      </div>
 
-        <div className="flex gap-2">
-          <GroupDialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <PlusIcon />
-                Create group
-              </Button>
-            </DialogTrigger>
-          </GroupDialog>
+      <div className="flex gap-2">
+        <GroupDialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <PlusIcon />
+              Create group
+            </Button>
+          </DialogTrigger>
+        </GroupDialog>
 
-          <AddClientDialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <PlusIcon />
-                Add client
-              </Button>
-            </DialogTrigger>
-          </AddClientDialog>
-        </div>
-      </Suspense>
+        <AddClientDialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <PlusIcon />
+              Add client
+            </Button>
+          </DialogTrigger>
+        </AddClientDialog>
+      </div>
     </header>
   )
 }

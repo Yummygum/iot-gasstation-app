@@ -16,9 +16,10 @@ const GROUP_BUDGET_BAR_FRAGMENT = graphql(`
 
 interface GroupBudgetBarProps {
   groupId: string
+  isLoading: boolean
 }
 
-const GroupBudgetBar = ({ groupId }: GroupBudgetBarProps) => {
+const GroupBudgetBar = ({ groupId, isLoading }: GroupBudgetBarProps) => {
   const { data, dataState } = useFragment({
     fragment: GROUP_BUDGET_BAR_FRAGMENT,
     from: {
@@ -50,7 +51,7 @@ const GroupBudgetBar = ({ groupId }: GroupBudgetBarProps) => {
   return (
     <BudgetBar
       groupId={groupId}
-      isLoading={dataState !== 'complete'}
+      isLoading={dataState !== 'complete' || isLoading}
       values={values}
     />
   )
