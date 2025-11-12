@@ -36,7 +36,7 @@ const DashboardBudgetBar = () => {
     }
   ]
 
-  return <BudgetBar loading={false} values={values} />
+  return <BudgetBar isLoading={false} values={values} />
 }
 
 export default DashboardBudgetBar

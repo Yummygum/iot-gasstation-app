@@ -10,18 +10,18 @@ import BudgetBarItem, { BudgetBarItemProps } from './BudgetBarItem'
 
 interface BudgetBarProps {
   groupId?: string
-  loading: boolean
+  isLoading: boolean
   values: BudgetBarItemProps[]
 }
 
-const BudgetBar = ({ groupId, loading, values }: BudgetBarProps) => {
+const BudgetBar = ({ groupId, isLoading, values }: BudgetBarProps) => {
   return (
     <Item
       className="rounded-2xl p-8 [background:linear-gradient(89deg,rgba(198,230,251,0.20)1.28%,rgba(181,210,251,0.20)50.75%,rgba(163,189,251,0.20)100.22%)]"
       variant="muted"
     >
       <ItemContent className="flex h-full flex-row items-stretch gap-10">
-        {!loading &&
+        {!isLoading &&
           values.map((value, idx) => (
             <BudgetBarItem
               isLast={idx === values.length - 1}
@@ -31,7 +31,7 @@ const BudgetBar = ({ groupId, loading, values }: BudgetBarProps) => {
             />
           ))}
 
-        {loading &&
+        {isLoading &&
           Array.from({ length: 3 }).map((_, idx) => (
             <div
               className="flex w-full flex-col items-start gap-x-10 gap-y-1"
@@ -45,7 +45,7 @@ const BudgetBar = ({ groupId, loading, values }: BudgetBarProps) => {
       <ItemActions>
         {groupId && (
           <AllocateFundsDialog groupId={groupId}>
-            <Button disabled={loading} size="sm" variant="default">
+            <Button disabled={isLoading} size="sm" variant="default">
               Allocate budget
             </Button>
           </AllocateFundsDialog>

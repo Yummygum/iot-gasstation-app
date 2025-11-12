@@ -50,7 +50,7 @@ const GroupBudgetBar = ({ groupId }: GroupBudgetBarProps) => {
   return (
     <BudgetBar
       groupId={groupId}
-      loading={dataState !== 'complete'}
+      isLoading={dataState !== 'complete'}
       values={values}
     />
   )
