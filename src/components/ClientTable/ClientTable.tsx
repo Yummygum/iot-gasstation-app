@@ -13,7 +13,7 @@ import {
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, MoreHorizontal, PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -39,9 +39,18 @@ import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
 import { tableMeta } from '@/lib/utils'
 import { formatDatabaseDateToDay } from '@/lib/utils/formatDateToDay'
 
+import AddClientDialog from '../AddClientDialog'
 import ConfirmDeleteClientDialog from '../ConfirmDeleteClientDialog'
 import IOTAAmount from '../IOTAAmount'
+import { Card, CardAction, CardContent, CardHeader } from '../ui/card'
+import { DialogTrigger } from '../ui/dialog'
+import { ItemDescription, ItemTitle } from '../ui/item'
 import { ValueRenderer } from '../ValueRenderer'
+
+interface ClientTableProps {
+  groupId?: string
+  groupName?: string
+}
 
 type ClientColumn = {
   id: string
@@ -173,7 +182,7 @@ const columns: ColumnDef<ClientColumn>[] = [
   }
 ]
 
-const ClientTable = () => {
+const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -186,13 +195,24 @@ const ClientTable = () => {
 
   const formattedData: ClientColumn[] = useMemo(() => {
     return (
-      clients?.getClientList.map((client) => ({
-        id: client.clientId,
-        amount: Number(client.balance),
-        name: client.name,
-        walletAddress: client.walletAddress,
-        lastTransaction: formatDatabaseDateToDay(client.metrics.lastTransaction)
-      })) ?? []
+      clients?.getClientList
+        .filter((client) => {
+          // If a groupId is provided, filter the clients to only include those in the group
+          if (groupId) {
+            return client.groupId === groupId
+          }
+
+          return true
+        })
+        .map((client) => ({
+          id: client.clientId,
+          amount: Number(client.balance),
+          name: client.name,
+          walletAddress: client.walletAddress,
+          lastTransaction: formatDatabaseDateToDay(
+            client.metrics.lastTransaction
+          )
+        })) ?? []
     )
   }, [clients])
 
@@ -222,18 +242,37 @@ const ClientTable = () => {
   })
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4">
+    <Card>
+      <CardHeader>
+        <ItemTitle className="text-xl">
+          {groupName ? `Clients of ${groupName}` : 'Clients'}
+        </ItemTitle>
+        <ItemDescription className="mb-4">
+          Quickly go over the clients that use the allocated budget of{' '}
+          {groupName ?? 'your account'}.
+        </ItemDescription>
+
+        <CardAction>
+          <AddClientDialog groupId={groupId}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <PlusIcon />
+                Add client
+              </Button>
+            </DialogTrigger>
+          </AddClientDialog>
+        </CardAction>
+
         <Input
-          className="max-w-sm"
+          className="max-w-[224px]"
           onChange={(event) =>
             table.getColumn('name')?.setFilterValue(event.target.value)
           }
           placeholder="Filter clients..."
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
         />
-      </div>
-      <div className="overflow-hidden rounded-md border">
+      </CardHeader>
+      <CardContent className="mx-6 overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -270,16 +309,16 @@ const ClientTable = () => {
             ) : (
               <TableRow>
                 <TableCell
-                  className="h-24 text-center"
+                  className="text-muted-foreground h-24 text-center"
                   colSpan={columns.length}
                 >
-                  No results.
+                  No clients found
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
-      </div>
+      </CardContent>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="space-x-2">
           <Button
@@ -313,7 +352,7 @@ const ClientTable = () => {
           open={showDeleteClientDialog}
         />
       )}
-    </div>
+    </Card>
   )
 }
 

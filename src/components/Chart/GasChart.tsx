@@ -54,6 +54,16 @@ const chartConfig = {
   }
 } satisfies ChartConfig
 
+const PIE_CHART_COLORS = [
+  '#155DFC',
+  '#C8A4FF',
+  '#FFB881',
+  '#FFA3A3',
+  '#8E92FC',
+  '#7FBBFF',
+  '#FFF3A5'
+]
+
 interface GasChartProps extends ComponentProps<'div'> {
   groupId?: string
 }
@@ -221,18 +231,32 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
       ? convertToBarChartData(transactions, startDate, endDate)
       : convertToPieChartData(transactions)
 
+    // Add colors to pie chart data
+    if (isPieChart && Array.isArray(data)) {
+      const pieData = data as PieChartDataPoint[]
+      const coloredData = pieData.map((item, index) => ({
+        ...item,
+        fill: PIE_CHART_COLORS[index % PIE_CHART_COLORS.length]
+      }))
+      return {
+        chartData: coloredData,
+        hasNoData: hasNoChartData(coloredData, isBarChart),
+        description: getChartDescription(timeRangeDays)
+      }
+    }
+
     return {
       chartData: data,
       hasNoData: hasNoChartData(data, isBarChart),
       description: getChartDescription(timeRangeDays)
     }
-  }, [transactions, isBarChart, startDate, endDate, timeRangeDays])
+  }, [transactions, isBarChart, isPieChart, startDate, endDate, timeRangeDays])
 
   return (
     <Item className={twMerge('pt-0', className)} variant="outline" {...props}>
       <ItemHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <ItemTitle>Total gas spent</ItemTitle>
+          <ItemTitle className="text-xl">Total gas spent</ItemTitle>
           <ItemDescription>{description}</ItemDescription>
         </div>
         <div className="flex gap-2">
@@ -328,10 +352,18 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
               <ChartTooltip
                 content={
                   <ChartTooltipContent
-                    formatter={(value) => (
-                      <IOTAAmount amount={value as number} size="xs" />
-                    )}
-                    hideLabel
+                    formatter={(value, name, payload) => {
+                      const dataPoint = payload?.payload as
+                        | PieChartDataPoint
+                        | undefined
+                      const displayName = dataPoint?.name || name || 'Unknown'
+                      return (
+                        <div className="flex items-center gap-2">
+                          <span>{displayName}:</span>
+                          <IOTAAmount amount={value as number} size="xs" />
+                        </div>
+                      )
+                    }}
                   />
                 }
                 cursor={false}
@@ -342,7 +374,7 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
                 innerRadius={60}
                 label={({ name, value }) => (
                   <>
-                    {name}:
+                    {name || 'Unknown'}:
                     <IOTAAmount amount={value as number} size="xs" />
                   </>
                 )}
