@@ -134,9 +134,13 @@ const ClientList = ({ isActive }: { isActive: (route: string) => boolean }) => {
               href={`/group/${menuItem.groupId}`}
             >
               <span className="flex w-full items-center gap-2.5 truncate">
-                <Avatar className="border-muted size-5 overflow-hidden rounded-sm bg-white">
+                <Avatar className="border-muted size-6 overflow-hidden rounded-sm border bg-white">
                   {menuItem.logoUri && (
-                    <AvatarImage alt={menuItem.name} src={menuItem.logoUri} />
+                    <AvatarImage
+                      alt={menuItem.name}
+                      className="m-0.5 h-auto w-full rounded-none object-contain object-center"
+                      src={menuItem.logoUri}
+                    />
                   )}
                   <AvatarFallback className="w-full text-center text-sm">
                     {menuItem.name.charAt(0).toUpperCase()}

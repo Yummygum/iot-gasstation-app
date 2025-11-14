@@ -43,13 +43,16 @@ const GroupPageHeader = ({ isLoading }: { isLoading: boolean }) => {
     <header className="flex w-full items-center gap-3 px-4 py-8">
       {/* <SidebarTrigger className="-ml-1" /> */}
 
-      <Avatar className="size-12 rounded-md">
+      <Avatar className="border-muted size-12 rounded-md border">
         {data.logoUri && (
-          <AvatarImage className="rounded-none" src={data.logoUri} />
+          <AvatarImage
+            alt={data.name ?? 'Group'}
+            className="m-1 h-auto w-full rounded-none object-contain object-center"
+            src={data.logoUri ?? ''}
+          />
         )}
         <AvatarFallback className="w-full rounded-none text-center">
           {data.name?.charAt(0).toUpperCase()}
-          {data.name?.charAt(1).toUpperCase()}
         </AvatarFallback>
       </Avatar>
 

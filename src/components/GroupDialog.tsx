@@ -208,20 +208,20 @@ const GroupDialog = ({
                         ? `${groupName.charAt(0).toUpperCase()}${groupName.charAt(1).toUpperCase()}`
                         : groupName && groupName.length === 1
                           ? groupName.charAt(0).toUpperCase()
-                          : ''
+                          : undefined
 
                     return (
                       <div className="flex justify-center">
-                        <Avatar className="h-[88px] w-[88px] rounded-md">
+                        <Avatar className="border-muted size-[88px] rounded-md border">
                           {hasLogoUri && (
                             <AvatarImage
                               alt={groupName || 'Group logo'}
-                              className="rounded-none object-cover"
+                              className="h-auto w-full rounded-none object-contain"
                               src={logoUri}
                             />
                           )}
-                          <AvatarFallback className="w-full rounded-none text-center text-lg">
-                            {fallbackText}
+                          <AvatarFallback className="size-full rounded-none text-center text-lg">
+                            {fallbackText ?? 'G'}
                           </AvatarFallback>
                         </Avatar>
                       </div>

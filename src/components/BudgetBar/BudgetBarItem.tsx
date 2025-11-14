@@ -17,7 +17,7 @@ const BudgetBarItem = ({ title, value, isLast }: BudgetBarItemProps) => {
 
   return (
     <Fragment key={quickHash(title)}>
-      <div className="animate-in fade-in-20 flex flex-col items-start">
+      <div className="animate-in fade-in-20 flex min-w-[142px] flex-col items-start">
         <h2 className="text-muted-foreground text-xs uppercase">{title}</h2>
         <p className="text-foreground text-lg font-normal">
           {isBalance && typeof value === 'number' ? (
@@ -30,7 +30,7 @@ const BudgetBarItem = ({ title, value, isLast }: BudgetBarItemProps) => {
 
       {!isLast && (
         <Separator
-          className="bg-border animate-in fade-in-20 w-px"
+          className="bg-border animate-in fade-in-20 hidden w-px lg:block"
           orientation="vertical"
         />
       )}

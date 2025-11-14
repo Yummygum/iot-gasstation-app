@@ -27,14 +27,15 @@ const DashboardHeader = ({
 
   return (
     <header className="flex w-full items-center gap-3">
-      <Avatar className="size-12 rounded-md">
-        {walletData.logoUri ? (
-          <AvatarImage className="rounded-none" src={walletData.logoUri} />
-        ) : (
-          <AvatarFallback className="w-full rounded-none text-center">
-            {walletData.name?.[0] ?? ''}
-          </AvatarFallback>
-        )}
+      <Avatar className="border-muted size-12 rounded-md border">
+        <AvatarImage
+          alt={walletData.name ?? 'Dashboard'}
+          className="object-fit size-full rounded-none object-center"
+          src={walletData.logoUri ?? ''}
+        />
+        <AvatarFallback className="size-full w-full rounded-none text-center">
+          {walletData.name?.charAt(0).toUpperCase() ?? 'U'}
+        </AvatarFallback>
       </Avatar>
 
       <div className="flex w-full flex-col overflow-hidden">
@@ -79,7 +80,7 @@ const DashboardHeader = ({
 
 const DashboardHeaderSkeleton = () => {
   return (
-    <header className="flex w-full items-center gap-3 px-6 py-8">
+    <header className="flex w-full items-center gap-3">
       <Skeleton className="inline-flex size-12 shrink-0 rounded-md" />
 
       <div className="inline-flex w-full flex-col gap-1">
