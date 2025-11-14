@@ -88,10 +88,13 @@ const IOTAAmount = ({
       exchangeRate &&
       amount !== 0
     ) {
-      exchangedValue = formatCurrency(amount * exchangeRate, currency)
+      // exchangeRate is how many IOTA per 1 unit of the selected currency
+      // To convert IOTA to currency: Currency = IOTA / exchangeRate
+      exchangedValue = formatCurrency(amount / exchangeRate, currency)
     }
 
-    const rate = exchangeRate ? formatCurrency(exchangeRate, currency, 4) : null
+    // Format exchangeRate as IOTA amount (e.g., "8.36400" IOTA per 1 EUR)
+    const rate = exchangeRate ? exchangeRate.toFixed(5) : null
 
     return {
       exchanged: exchangedValue,

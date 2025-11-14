@@ -24,7 +24,15 @@ export const ExchangeRateProvider = ({ children }: { children: ReactNode }) => {
       return null
     }
 
-    return currency === 'EUR' ? data.getIotaEurPrice : data.getIotaUsdPrice
+    // API returns the price of 1 IOTA in the selected currency (e.g., 0.1196 EUR per IOTA)
+    // We need to invert it to get IOTA per currency unit (e.g., 8.36400 IOTA per EUR)
+    const pricePerIota = currency === 'EUR' ? data.getIotaEurPrice : data.getIotaUsdPrice
+    
+    if (!pricePerIota || pricePerIota === 0) {
+      return null
+    }
+
+    return 1 / pricePerIota
   }, [data, currency])
 
   return (
