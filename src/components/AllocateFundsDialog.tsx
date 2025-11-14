@@ -74,7 +74,7 @@ const AllocateFundsDialog = ({
       <DialogContent className="max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader className="mb-6">
-            <DialogTitle>Allocate budget</DialogTitle>
+            <DialogTitle>Allocate funds</DialogTitle>
             <p className="text-muted-foreground text-sm">
               Drain or top up the Allocated budget for this group
             </p>

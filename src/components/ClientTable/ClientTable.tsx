@@ -74,6 +74,7 @@ const columns: ColumnDef<ClientColumn>[] = [
       return (
         <Button
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          size="sm"
           variant="ghost"
         >
           Name
@@ -91,6 +92,7 @@ const columns: ColumnDef<ClientColumn>[] = [
       return (
         <Button
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          size="sm"
           variant="ghost"
         >
           Last transaction
@@ -113,6 +115,7 @@ const columns: ColumnDef<ClientColumn>[] = [
       return (
         <Button
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          size="sm"
           variant="ghost"
         >
           Amount

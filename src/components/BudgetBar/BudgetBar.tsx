@@ -46,7 +46,7 @@ const BudgetBar = ({ groupId, isLoading, values }: BudgetBarProps) => {
         {groupId && (
           <AllocateFundsDialog groupId={groupId}>
             <Button disabled={isLoading} size="sm" variant="default">
-              Allocate budget
+              Allocate funds
             </Button>
           </AllocateFundsDialog>
         )}
