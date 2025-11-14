@@ -28,7 +28,7 @@ const GroupPage = ({ params }: GroupPageProps) => {
     <div>
       <GroupPageHeader isLoading={loading} />
 
-      <section className="flex flex-col gap-10 p-4">
+      <section className="flex flex-col gap-10 p-4 pt-0">
         {data?.getGroup?.status && (
           <StatusNotifier
             variant={

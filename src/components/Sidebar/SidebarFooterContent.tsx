@@ -13,6 +13,7 @@ import { GetSponsorWalletQuery } from '@/lib/api/queries/getSponsorWallet'
 import AddClientDialog from '../AddClientDialog'
 import AddFundsDialog from '../AddFundsDialog'
 import GroupDialog from '../GroupDialog'
+import SettingsDialog from '../SettingsDialog'
 import TokenBalance from '../TokenBalance'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { DialogTrigger } from '../ui/dialog'
@@ -33,11 +34,7 @@ const SidebarFooterContent = ({ walletData }: SidebarFooterContentProps) => {
     // TODO: Implement logout logic
   }
 
-  const handleSettings = () => {
-    // TODO: Implement settings navigation
-  }
-
-  const walletName = walletData?.name || 'Sponsor Wallet'
+  const walletName = walletData?.name || ''
   const walletAvatar = walletData?.logoUri || undefined
 
   return (
@@ -64,10 +61,14 @@ const SidebarFooterContent = ({ walletData }: SidebarFooterContentProps) => {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="center" className="w-68" side="top">
-          <DropdownMenuItem disabled onClick={handleSettings}>
-            <SettingsIcon />
-            Settings
-          </DropdownMenuItem>
+          <SettingsDialog>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                <SettingsIcon />
+                Settings
+              </DropdownMenuItem>
+            </DialogTrigger>
+          </SettingsDialog>
 
           <DropdownMenuSeparator />
 
