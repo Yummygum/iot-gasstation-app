@@ -10,7 +10,9 @@ import * as z from 'zod'
 
 import ADD_CLIENT_TO_GROUP_MUTATION from '@/lib/api/mutations/addClientToGroup'
 import CREATE_CLIENT_MUTATION from '@/lib/api/mutations/createClient'
+import CREATE_CLIENT_BY_WEBSITE_URI_MUTATION from '@/lib/api/mutations/createClientByWebsiteUri'
 import CREATE_GROUP_MUTATION from '@/lib/api/mutations/createGroup'
+import GET_CLIENT from '@/lib/api/queries/getClient'
 import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
 import GET_GROUP from '@/lib/api/queries/getGroup'
 import GET_GROUP_LIST from '@/lib/api/queries/getGroupList'
@@ -48,7 +50,7 @@ interface AddClientDialogContentProps extends PropsWithChildren {
   groupId?: string
 }
 
-type ClientType = 'individual' | 'organization'
+type ClientType = 'wallet-address' | 'url'
 
 // A regex to test the organization URL
 const urlRegex = new RegExp(
@@ -57,14 +59,14 @@ const urlRegex = new RegExp(
 
 const formSchema = z
   .object({
-    clientType: z.enum(['individual', 'organization']),
+    clientType: z.enum(['wallet-address', 'url']),
     groupId: z.string().min(1, 'Please select a group'),
     url: z.string(),
     clientName: z.string(),
     walletAddress: z.string()
   })
   .superRefine((value, ctx) => {
-    if (value.clientType === 'organization') {
+    if (value.clientType === 'url') {
       if (value.url === '' || !urlRegex.test(value.url)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -99,7 +101,7 @@ const AddClientDialog = ({
   const [isOpen, setIsOpen] = useState(false)
   const form = useForm({
     defaultValues: {
-      clientType: 'organization' as ClientType,
+      clientType: 'url' as ClientType,
       url: initialUrl,
       groupId: initialGroupId ?? '',
       clientName: '',
@@ -111,17 +113,32 @@ const AddClientDialog = ({
     onSubmit: async ({ value }) => {
       const normalizedUrl = normalizeClientUrl(value.url)
       const submitValue = { ...value, url: normalizedUrl }
+      const groupId =
+        submitValue.groupId === 'my-group' ? undefined : submitValue.groupId
+
       try {
-        const { data: createClientData } = await createClient({
-          variables: {
-            name: submitValue.clientName,
-            walletAddress: submitValue.walletAddress,
-            groupId:
-              submitValue.groupId === 'my-group'
-                ? undefined
-                : submitValue.groupId
-          }
-        })
+        let createClientData
+
+        if (submitValue.clientType === 'url') {
+          // Use createClientByWebsiteUri for URL-based clients
+          const { data } = await createClientByWebsiteUri({
+            variables: {
+              websiteUri: normalizedUrl,
+              groupId
+            }
+          })
+          createClientData = data
+        } else {
+          // Use createClient for wallet-address-based clients
+          const { data } = await createClient({
+            variables: {
+              name: submitValue.clientName,
+              walletAddress: submitValue.walletAddress,
+              groupId
+            }
+          })
+          createClientData = data
+        }
 
         if (groups.find((group) => group.groupId === 'my-group')) {
           try {
@@ -173,15 +190,23 @@ const AddClientDialog = ({
   const [createClient, { loading: createClientLoading }] = useMutation(
     CREATE_CLIENT_MUTATION,
     {
-      refetchQueries: [GET_GROUP],
+      refetchQueries: [GET_GROUP, GET_CLIENT_LIST, GET_CLIENT],
       errorPolicy: 'all'
     }
   )
 
+  const [
+    createClientByWebsiteUri,
+    { loading: createClientByWebsiteUriLoading }
+  ] = useMutation(CREATE_CLIENT_BY_WEBSITE_URI_MUTATION, {
+    refetchQueries: [GET_GROUP, GET_CLIENT_LIST, GET_CLIENT],
+    errorPolicy: 'all'
+  })
+
   const [addClientToGroup, { loading: addClientToGroupLoading }] = useMutation(
     ADD_CLIENT_TO_GROUP_MUTATION,
     {
-      refetchQueries: [GET_GROUP, GET_CLIENT_LIST],
+      refetchQueries: [GET_GROUP, GET_CLIENT_LIST, GET_CLIENT],
       errorPolicy: 'all'
     }
   )
@@ -195,7 +220,10 @@ const AddClientDialog = ({
   )
 
   const isLoading =
-    createClientLoading || addClientToGroupLoading || createGroupLoading
+    createClientLoading ||
+    createClientByWebsiteUriLoading ||
+    addClientToGroupLoading ||
+    createGroupLoading
 
   const handleSubmit = async () => {
     await form.handleSubmit()
@@ -240,13 +268,11 @@ const AddClientDialog = ({
                       <Button
                         onClick={(event) => {
                           event?.preventDefault()
-                          field.handleChange('organization')
+                          field.handleChange('url')
                         }}
                         size="sm"
                         variant={
-                          field.state.value === 'organization'
-                            ? 'default'
-                            : 'ghost'
+                          field.state.value === 'url' ? 'default' : 'ghost'
                         }
                       >
                         URL
@@ -254,11 +280,11 @@ const AddClientDialog = ({
                       <Button
                         onClick={(event) => {
                           event?.preventDefault()
-                          field.handleChange('individual')
+                          field.handleChange('wallet-address')
                         }}
                         size="sm"
                         variant={
-                          field.state.value === 'individual'
+                          field.state.value === 'wallet-address'
                             ? 'default'
                             : 'ghost'
                         }
@@ -272,7 +298,7 @@ const AddClientDialog = ({
 
               <form.Field name="clientType">
                 {(ft) =>
-                  ft.state.value === 'organization' ? (
+                  ft.state.value === 'url' ? (
                     <FieldGroup>
                       <form.Field name="url">
                         {(field) => {
