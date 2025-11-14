@@ -15,6 +15,7 @@ const GET_CLIENT_LIST = graphql(`
         allTime {
           totalTransactions
           averageDailyTransactions
+          totalSponsoredAmount
         }
         last7Days {
           totalTransactions

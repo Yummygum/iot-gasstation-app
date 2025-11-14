@@ -41,7 +41,7 @@ const SidebarFooterContent = ({ walletData }: SidebarFooterContentProps) => {
     <footer className="flex w-full flex-col items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="hover:bg-accent flex w-full cursor-pointer items-center gap-4 rounded-md border p-2 transition-colors">
+          <div className="glass flex w-full cursor-pointer items-center gap-4 rounded-md border bg-white/40 p-2 transition-colors hover:bg-white/70">
             <Avatar className="size-10 rounded-md">
               <AvatarImage
                 alt={walletName}

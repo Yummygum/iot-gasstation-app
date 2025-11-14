@@ -16,7 +16,7 @@ interface SpendingSummaryProps {
   isLoading?: boolean
 }
 
-const SpendingSummary = ({ walletData, isLoading }: SpendingSummaryProps) => {
+const SpendingSummary = ({ walletData }: SpendingSummaryProps) => {
   const spendingData: ISpendingData[] = useMemo(() => {
     const metrics = walletData?.metrics?.allTime
 
@@ -30,11 +30,11 @@ const SpendingSummary = ({ walletData, isLoading }: SpendingSummaryProps) => {
         amount: metrics.totalSponsoredAmount,
         subItems: [
           {
-            title: 'Total transactions',
-            amount: metrics.totalTransactions
+            title: 'Total sponsored amount',
+            amount: metrics.totalSponsoredAmount
           },
           {
-            title: 'Average per day',
+            title: 'Average sponsored amount per day',
             amount: metrics.averageDailySponsoredAmount
           }
         ]
@@ -44,22 +44,11 @@ const SpendingSummary = ({ walletData, isLoading }: SpendingSummaryProps) => {
         amount: metrics.averageTransactionFee
       },
       {
-        title: 'Daily transaction rate',
+        title: 'Average daily transactions',
         amount: metrics.averageDailyTransactions
       }
     ]
   }, [walletData])
-
-  if (isLoading) {
-    return (
-      <Item variant="outline">
-        <ItemContent className="h-fit">
-          <ItemTitle className="text-lg">All time</ItemTitle>
-          <p className="text-muted-foreground text-sm">Loading...</p>
-        </ItemContent>
-      </Item>
-    )
-  }
 
   if (!spendingData.length) {
     return (
@@ -75,7 +64,7 @@ const SpendingSummary = ({ walletData, isLoading }: SpendingSummaryProps) => {
   return (
     <Item variant="outline">
       <ItemContent className="h-fit">
-        <ItemTitle className="text-lg">All time</ItemTitle>
+        <ItemTitle className="text-lg">Statistics</ItemTitle>
 
         {spendingData.map((data) => (
           <div className="py-2" key={data.title}>

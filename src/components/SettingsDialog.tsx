@@ -147,15 +147,11 @@ const SettingsDialog = ({ children }: SettingsDialogProps) => {
                       typeof logoUri === 'string' &&
                       logoUri.trim() !== ''
                     const fallbackText =
-                      walletName && walletName.length >= 2
-                        ? `${walletName.charAt(0).toUpperCase()}${walletName.charAt(1).toUpperCase()}`
-                        : walletName && walletName.length === 1
-                          ? walletName.charAt(0).toUpperCase()
-                          : 'U'
+                      walletName?.charAt(0).toUpperCase() ?? 'S'
 
                     return (
                       <div className="flex justify-center">
-                        <Avatar className="border-muted size-[88px] rounded-md border">
+                        <Avatar className="bg-primary text-primary-foreground size-[88px] rounded-md">
                           {hasLogoUri && (
                             <AvatarImage
                               alt={walletName || 'Your profile logo'}
@@ -163,7 +159,7 @@ const SettingsDialog = ({ children }: SettingsDialogProps) => {
                               src={logoUri}
                             />
                           )}
-                          <AvatarFallback className="w-full rounded-none text-center text-lg">
+                          <AvatarFallback className="bg-primary w-full rounded-none text-center text-2xl text-white">
                             {fallbackText}
                           </AvatarFallback>
                         </Avatar>

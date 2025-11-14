@@ -62,7 +62,7 @@ function renderTooltipContent(
           <IOTASymbol size={12} />
           <span className="font-medium">{currencySymbol}1</span>
           <span className="">=</span>
-          <span className="font-medium">{conversionRate}</span>
+          <span className="font-medium">{conversionRate.toLocaleString()}</span>
         </div>
       )}
     </div>

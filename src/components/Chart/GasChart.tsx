@@ -6,7 +6,15 @@ import {
   PieChart as PieChartIcon
 } from 'lucide-react'
 import { ComponentProps, useMemo, useState } from 'react'
-import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis } from 'recharts'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Pie,
+  PieChart,
+  ReferenceLine,
+  XAxis
+} from 'recharts'
 import { twMerge } from 'tailwind-merge'
 
 import type {
@@ -117,6 +125,19 @@ function hasNoChartData(
 }
 
 /**
+ * Calculates the average gas value from bar chart data
+ */
+function calculateAverageGas(barData: BarChartDataPoint[]): number {
+  if (!barData || barData.length === 0) {
+    return 0
+  }
+
+  const totalGas = barData.reduce((sum, point) => sum + (point.gas || 0), 0)
+
+  return totalGas / barData.length
+}
+
+/**
  * Custom tooltip for bar chart showing client breakdown
  */
 
@@ -152,12 +173,12 @@ const BarChartTooltip = ({
       <div className="mb-2 text-sm font-medium">{formattedDate}</div>
       <div className="space-y-1 text-xs">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Total:</span>
+          <span className="text-gray-600">Total:</span>
           <IOTAAmount amount={totalValue} size="xs" />
         </div>
         {clientBreakdown.length > 0 && (
           <div className="mt-2 border-t border-[#171D26]/10 pt-2">
-            <div className="text-muted-foreground mb-1 text-[10px] font-medium uppercase">
+            <div className="mb-1 text-[10px] font-medium text-gray-600 uppercase">
               By Client:
             </div>
             {clientBreakdown.map((client) => (
@@ -165,7 +186,7 @@ const BarChartTooltip = ({
                 className="flex items-center justify-between"
                 key={client.clientId}
               >
-                <span className="text-muted-foreground max-w-[100px] truncate">
+                <span className="max-w-[100px] truncate text-gray-600">
                   {client.name}
                 </span>
                 <IOTAAmount amount={client.amount} className="ml-2" size="xs" />
@@ -213,7 +234,7 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
   }, [queryData, groupId])
 
   // Convert transactions to chart data format and check if empty
-  const { chartData, hasNoData, description } = useMemo(() => {
+  const { chartData, hasNoData, description, averageValue } = useMemo(() => {
     const data = isBarChart
       ? convertToBarChartData(transactions, startDate, endDate)
       : convertToPieChartData(transactions)
@@ -228,14 +249,22 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
       return {
         chartData: coloredData,
         hasNoData: hasNoChartData(coloredData, isBarChart),
-        description: getChartDescription(timeRangeDays)
+        description: getChartDescription(timeRangeDays),
+        averageValue: 0
       }
     }
+
+    // Calculate average for bar chart
+    const average =
+      isBarChart && Array.isArray(data)
+        ? calculateAverageGas(data as BarChartDataPoint[])
+        : 0
 
     return {
       chartData: data,
       hasNoData: hasNoChartData(data, isBarChart),
-      description: getChartDescription(timeRangeDays)
+      description: getChartDescription(timeRangeDays),
+      averageValue: average
     }
   }, [transactions, isBarChart, isPieChart, startDate, endDate, timeRangeDays])
 
@@ -290,7 +319,7 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
       </ItemHeader>
       <ItemContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
-          className="aspect-auto h-[250px] w-full"
+          className="[&_.recharts-pie-label-text]:fill-foreground aspect-auto h-[264px] w-full"
           config={chartConfig}
         >
           {loading ? (
@@ -329,20 +358,33 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
                 fill="var(--color-gas)"
                 radius={[999, 999, 0, 0]}
               />
+              <ReferenceLine
+                className="z-10 hidden text-left font-medium"
+                ifOverflow="extendDomain"
+                stroke="var(--muted-foreground)"
+                strokeDasharray="8 4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                y={averageValue}
+              />
             </BarChart>
           ) : (
             <PieChart>
               <ChartTooltip
                 content={
                   <ChartTooltipContent
+                    className="glass rounded-lg border bg-white/70 px-3 py-2"
                     formatter={(value, name, payload) => {
                       const dataPoint = payload?.payload as
                         | PieChartDataPoint
                         | undefined
                       const displayName = dataPoint?.name || name || 'Unknown'
                       return (
-                        <div className="flex items-center gap-2">
-                          <span>{displayName}:</span>
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="text-sm font-medium">
+                            {displayName}
+                          </span>
                           <IOTAAmount amount={value as number} size="xs" />
                         </div>
                       )
@@ -354,14 +396,19 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
               <Pie
                 data={chartData as PieChartDataPoint[]}
                 dataKey="value"
-                innerRadius={60}
-                label={({ name, value }) => (
-                  <>
-                    {name || 'Unknown'}:
-                    <IOTAAmount amount={value as number} size="xs" />
-                  </>
-                )}
+                innerRadius={40}
+                label={(entry) => {
+                  const name = entry.name || 'Unknown'
+                  return `${name}`
+                }}
+                labelLine={{
+                  strokeWidth: 1,
+                  stroke: 'var(--color-)',
+                  strokeLinecap: 'round',
+                  strokeLinejoin: 'round'
+                }}
                 nameKey="name"
+                outerRadius={100}
               />
             </PieChart>
           )}

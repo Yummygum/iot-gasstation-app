@@ -43,8 +43,8 @@ const AddFundsDialog = ({ children }: AddFundsDialogProps) => {
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent className="max-w-[561px]">
-        <DialogHeader className="mb-6">
+      <DialogContent>
+        <DialogHeader>
           <DialogTitle>Top up funds</DialogTitle>
           <DialogDescription>
             Scan the QR code or copy the address to top up funds.
@@ -53,7 +53,6 @@ const AddFundsDialog = ({ children }: AddFundsDialogProps) => {
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-6">
-          {/* QR Code */}
           <div className="flex size-[198px] items-center justify-center rounded-lg bg-white p-4">
             {walletAddress ? (
               <QRCodeSVG size={198} value={walletAddress} />
@@ -62,22 +61,20 @@ const AddFundsDialog = ({ children }: AddFundsDialogProps) => {
             )}
           </div>
 
-          {/* Address Display */}
           <div className="w-full space-y-3">
             <div className="bg-muted text-muted-foreground rounded-lg border p-4 text-center font-mono text-sm leading-relaxed break-all">
               {walletAddress || 'Loading wallet address...'}
             </div>
 
-            {/* Copy Button */}
             <Button
-              className="w-full"
+              className="mt-2 w-full"
               disabled={!walletAddress}
               onClick={handleCopyAddress}
               type="button"
               variant="default"
             >
               <CopyIcon className="mr-2 size-4" />
-              Copy address
+              Copy wallet address
             </Button>
           </div>
         </div>

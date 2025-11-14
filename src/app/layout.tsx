@@ -50,6 +50,8 @@ const RootLayout = ({
                     </div>
                   </div>
                 </SidebarInset>
+
+                <div className="pointer-events-none fixed top-0 left-0 -z-10 size-full [background:linear-gradient(146deg,rgba(181,210,251,0.20)-0.5%,rgba(255,255,255,0.00)41.3%,rgba(163,189,251,0.50)77.12%)]" />
               </SidebarProvider>
             </ExchangeRateProvider>
           </SettingsProvider>

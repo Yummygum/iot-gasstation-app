@@ -9,11 +9,12 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  SortDirection,
   SortingState,
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal, PlusIcon } from 'lucide-react'
+import { ArrowDown, ArrowUp, MoreHorizontal, PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -53,7 +54,7 @@ interface ClientTableProps {
 
 type ClientColumn = {
   id: string
-  amount: number | null
+  totalSponsoredAmount: number | null
   name: string
   lastTransaction: Date | null
   walletAddress: string
@@ -73,14 +74,15 @@ const columns: ColumnDef<ClientColumn>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => {
+      const sorted = column.getIsSorted()
       return (
         <Button
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(sorted === 'asc')}
           size="sm"
           variant="ghost"
         >
           Name
-          <ArrowUpDown />
+          <SortIcon sorted={sorted} />
         </Button>
       )
     },
@@ -91,14 +93,15 @@ const columns: ColumnDef<ClientColumn>[] = [
   {
     accessorKey: 'lastTransaction',
     header: ({ column }) => {
+      const sorted = column.getIsSorted()
       return (
         <Button
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(sorted === 'asc')}
           size="sm"
           variant="ghost"
         >
           Last transaction
-          <ArrowUpDown />
+          <SortIcon sorted={sorted} />
         </Button>
       )
     },
@@ -112,23 +115,24 @@ const columns: ColumnDef<ClientColumn>[] = [
     }
   },
   {
-    accessorKey: 'amount',
+    accessorKey: 'totalSponsoredAmount',
     header: ({ column }) => {
+      const sorted = column.getIsSorted()
       return (
         <Button
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(sorted === 'asc')}
           size="sm"
           variant="ghost"
         >
-          Spent
-          <ArrowUpDown />
+          Total sponsored amount
+          <SortIcon sorted={sorted} />
         </Button>
       )
     },
     cell: ({ row }) => {
       return (
         <div className="px-3">
-          <IOTAAmount amount={row.getValue('amount')} />
+          <IOTAAmount amount={row.getValue('totalSponsoredAmount')} />
         </div>
       )
     }
@@ -136,14 +140,15 @@ const columns: ColumnDef<ClientColumn>[] = [
   {
     accessorKey: 'averageDailyTransactions',
     header: ({ column }) => {
+      const sorted = column.getIsSorted()
       return (
         <Button
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(sorted === 'asc')}
           size="sm"
           variant="ghost"
         >
           Avg daily transactions
-          <ArrowUpDown />
+          <SortIcon sorted={sorted} />
         </Button>
       )
     },
@@ -151,7 +156,7 @@ const columns: ColumnDef<ClientColumn>[] = [
       const value = row.getValue('averageDailyTransactions') as number | null
       return (
         <div className="px-3">
-          {value !== null ? <IOTAAmount amount={value} /> : 'Unknown'}
+          {value !== null ? value.toLocaleString() : 'Unknown'}
         </div>
       )
     }
@@ -159,22 +164,21 @@ const columns: ColumnDef<ClientColumn>[] = [
   {
     accessorKey: 'totalTransactions',
     header: ({ column }) => {
+      const sorted = column.getIsSorted()
       return (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
+              onClick={() => column.toggleSorting(sorted === 'asc')}
               size="sm"
               variant="ghost"
             >
               Recent transactions
-              <ArrowUpDown />
+              <SortIcon sorted={sorted} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>The total amount of transactions the past 7 days</p>
+            <p>The total amount of transactions in the past 7 days</p>
           </TooltipContent>
         </Tooltip>
       )
@@ -240,6 +244,18 @@ const columns: ColumnDef<ClientColumn>[] = [
   }
 ]
 
+const SortIcon = ({ sorted }: { sorted: SortDirection | false }) => {
+  if (sorted === 'asc') {
+    return <ArrowUp />
+  }
+
+  if (sorted === 'desc') {
+    return <ArrowDown />
+  }
+
+  return null
+}
+
 const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -259,7 +275,9 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
     return (
       clients?.getClientList.map((client) => ({
         id: client.clientId,
-        amount: Number(client.balance),
+        totalSponsoredAmount: Number(
+          client.metrics.allTime?.totalSponsoredAmount
+        ),
         name: client.name,
         walletAddress: client.walletAddress,
         lastTransaction: client.metrics.lastTransaction
