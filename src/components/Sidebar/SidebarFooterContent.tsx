@@ -1,7 +1,9 @@
-import { BellDotIcon } from 'lucide-react'
+import { BellDotIcon, SettingsIcon } from 'lucide-react'
 
+import SettingsDialog from '../SettingsDialog'
 import TokenBalance from '../TokenBalance'
 import { Button } from '../ui/button'
+import { DialogTrigger } from '../ui/dialog'
 import { Separator } from '../ui/separator'
 
 const SidebarFooterContent = () => {
@@ -17,6 +19,13 @@ const SidebarFooterContent = () => {
           </div>
 
           <div className="flex gap-2">
+            <SettingsDialog>
+              <DialogTrigger asChild>
+                <Button size="icon-lg" variant="ghost">
+                  <SettingsIcon className="size-6" />
+                </Button>
+              </DialogTrigger>
+            </SettingsDialog>
             <Button size="icon-lg" variant="ghost">
               <BellDotIcon className="size-6" />
             </Button>
