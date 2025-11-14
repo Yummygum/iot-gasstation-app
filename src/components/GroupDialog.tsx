@@ -212,7 +212,7 @@ const GroupDialog = ({
 
                     return (
                       <div className="flex justify-center">
-                        <Avatar className="border-muted size-[88px] rounded-md border">
+                        <Avatar className="border-muted size-[64px] rounded-md border">
                           {hasLogoUri && (
                             <AvatarImage
                               alt={groupName || 'Group logo'}
@@ -220,7 +220,7 @@ const GroupDialog = ({
                               src={logoUri}
                             />
                           )}
-                          <AvatarFallback className="size-full rounded-none text-center text-lg">
+                          <AvatarFallback className="bg-primary text-primary-foreground rounded-none text-center text-lg">
                             {fallbackText ?? 'G'}
                           </AvatarFallback>
                         </Avatar>
