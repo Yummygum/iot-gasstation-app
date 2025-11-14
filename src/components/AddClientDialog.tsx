@@ -226,7 +226,7 @@ const AddClientDialog = ({
           <DialogHeader className="mb-5">
             <DialogTitle>Add client</DialogTitle>
             <DialogDescription>
-              Add either a Organizational client or Individual client
+              Add either a URL or Wallet Address of your client
             </DialogDescription>
             <DialogClose />
           </DialogHeader>
@@ -249,7 +249,7 @@ const AddClientDialog = ({
                             : 'ghost'
                         }
                       >
-                        Organization
+                        URL
                       </Button>
                       <Button
                         onClick={(event) => {
@@ -263,7 +263,7 @@ const AddClientDialog = ({
                             : 'ghost'
                         }
                       >
-                        Individual
+                        Wallet Address
                       </Button>
                     </>
                   )}
