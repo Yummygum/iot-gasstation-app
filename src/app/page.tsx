@@ -24,13 +24,13 @@ const Dashboard = () => {
     <div className="flex w-full flex-col gap-10 px-4 py-8">
       <DashboardHeader
         isLoading={isLoading}
-        sponsorWalletId={data?.getSponsorWallet?.sponsorWalletId}
         totalClients={totalClients}
+        walletData={data?.getSponsorWallet}
       />
 
       <DashboardBudgetBar
         isLoading={isLoading}
-        sponsorWalletId={data?.getSponsorWallet?.sponsorWalletId}
+        walletData={data?.getSponsorWallet}
       />
 
       <GasChart />

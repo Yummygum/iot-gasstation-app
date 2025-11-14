@@ -1,8 +1,7 @@
 'use client'
-import { useFragment } from '@apollo/client/react'
 import { PlusIcon } from 'lucide-react'
 
-import { graphql } from '@/lib/api/graphql'
+import { GetSponsorWalletQuery } from '@/lib/api/queries/getSponsorWallet'
 
 import AddClientDialog from './AddClientDialog'
 import GroupDialog from './GroupDialog'
@@ -12,60 +11,40 @@ import { DialogTrigger } from './ui/dialog'
 import { Skeleton } from './ui/skeleton'
 
 interface DashboardHeaderProps {
-  sponsorWalletId?: string
+  walletData?: GetSponsorWalletQuery['getSponsorWallet']
   isLoading: boolean
   totalClients: number
 }
 
-const DASHBOARD_HEADER_WALLET_FRAGMENT = graphql(`
-  fragment DashboardHeaderFragment on SponsorWalletDto {
-    name
-    logoUri
-    metrics {
-      allTime {
-        totalTransactions
-      }
-    }
-  }
-`)
-
 const DashboardHeader = ({
-  sponsorWalletId,
+  walletData,
   totalClients,
   isLoading
 }: DashboardHeaderProps) => {
-  const { data, dataState } = useFragment({
-    fragment: DASHBOARD_HEADER_WALLET_FRAGMENT,
-    from: {
-      __typename: 'SponsorWalletDto',
-      sponsorWalletId
-    }
-  })
-
-  if (isLoading || dataState !== 'complete') {
+  if (isLoading || !walletData) {
     return <DashboardHeaderSkeleton />
   }
 
   return (
     <header className="flex w-full items-center gap-3">
       <Avatar className="size-12 rounded-md">
-        {data.logoUri ? (
-          <AvatarImage className="rounded-none" src={data.logoUri} />
+        {walletData.logoUri ? (
+          <AvatarImage className="rounded-none" src={walletData.logoUri} />
         ) : (
           <AvatarFallback className="w-full rounded-none text-center">
-            {data.name?.[0] ?? ''}
+            {walletData.name?.[0] ?? ''}
           </AvatarFallback>
         )}
       </Avatar>
 
       <div className="flex w-full flex-col overflow-hidden">
         <h1 className="truncate text-2xl leading-normal font-medium">
-          {data.name ?? 'Dashboard'}
+          {walletData.name ?? 'Dashboard'}
         </h1>
         <p className="text-muted-foreground inline-flex items-center gap-2 truncate text-sm">
           <span>
-            {data.metrics?.allTime?.totalTransactions
-              ? `${data.metrics?.allTime?.totalTransactions} total transactions`
+            {walletData.metrics?.allTime?.totalTransactions
+              ? `${walletData.metrics?.allTime?.totalTransactions} total transactions`
               : 'No recent transactions'}
           </span>
           <span>-</span>

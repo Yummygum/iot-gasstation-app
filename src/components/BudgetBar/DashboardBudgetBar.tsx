@@ -1,8 +1,8 @@
 'use client'
 
-import { useFragment } from '@apollo/client/react'
+import { useMemo } from 'react'
 
-import { graphql } from '@/lib/api/graphql'
+import { GetSponsorWalletQuery } from '@/lib/api/queries/getSponsorWallet'
 import { formatEstimatedDepletionDate } from '@/lib/utils/dateUtils'
 
 import BudgetBar from './BudgetBar'
@@ -10,40 +10,33 @@ import { BudgetBarItemProps } from './BudgetBarItem'
 
 interface DashboardBudgetBarProps {
   isLoading: boolean
-  sponsorWalletId?: string
+  walletData?: GetSponsorWalletQuery['getSponsorWallet']
 }
 
-export const DASHBOARD_BUDGET_BAR_FRAGMENT = graphql(`
-  fragment DashboardBudgetBarFragment on SponsorWalletDto {
-    estimatedRemainingTransactions
-    estimatedDepletionDate
-  }
-`)
-
 const DashboardBudgetBar = ({
-  isLoading,
-  sponsorWalletId
+  walletData,
+  isLoading
 }: DashboardBudgetBarProps) => {
-  const { data } = useFragment({
-    fragment: DASHBOARD_BUDGET_BAR_FRAGMENT,
-    from: {
-      __typename: 'SponsorWalletDto',
-      sponsorWalletId
-    }
-  })
-
-  const values: BudgetBarItemProps[] = [
-    {
-      title: 'Est. remaining transactions',
-      isLast: false,
-      value: data.estimatedRemainingTransactions ?? 'Unknown'
-    },
-    {
-      title: 'Est. date of running out',
-      isLast: true,
-      value: formatEstimatedDepletionDate(data.estimatedDepletionDate as string)
-    }
-  ]
+  const values: BudgetBarItemProps[] = useMemo(
+    () => [
+      {
+        title: 'Est. remaining transactions',
+        isLast: false,
+        value: walletData?.estimatedRemainingTransactions ?? 'Unknown'
+      },
+      {
+        title: 'Est. date of running out',
+        isLast: true,
+        value: formatEstimatedDepletionDate(
+          walletData?.estimatedDepletionDate as string
+        )
+      }
+    ],
+    [
+      walletData?.estimatedRemainingTransactions,
+      walletData?.estimatedDepletionDate
+    ]
+  )
 
   return <BudgetBar isLoading={isLoading} values={values} />
 }
