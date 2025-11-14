@@ -1,7 +1,9 @@
+'use client'
+
 import { useFragment } from '@apollo/client/react'
 
 import { graphql } from '@/lib/api/graphql'
-import { formatDatabaseDateToDay } from '@/lib/utils/formatDateToDay'
+import { formatEstimatedDepletionDate } from '@/lib/utils/dateUtils'
 
 import BudgetBar from './BudgetBar'
 import { BudgetBarItemProps } from './BudgetBarItem'
@@ -42,9 +44,7 @@ const GroupBudgetBar = ({ groupId, isLoading }: GroupBudgetBarProps) => {
     {
       title: 'Est. date of running out',
       isLast: true,
-      value:
-        formatDatabaseDateToDay(data.estimatedDepletionDate as string) ||
-        'Unknown'
+      value: formatEstimatedDepletionDate(data.estimatedDepletionDate as string)
     }
   ]
 

@@ -36,7 +36,6 @@ import {
 } from '@/components/ui/table'
 import GET_CLIENT_LIST from '@/lib/api/queries/getClientList'
 import { tableMeta } from '@/lib/utils'
-import { formatDatabaseDateToDay } from '@/lib/utils/formatDateToDay'
 
 import AddClientDialog from '../AddClientDialog'
 import ConfirmDeleteClientDialog from '../ConfirmDeleteClientDialog'
@@ -55,7 +54,7 @@ type ClientColumn = {
   id: string
   amount: number | null
   name: string
-  lastTransaction: string
+  lastTransaction: Date | null
   walletAddress: string
 }
 
@@ -101,10 +100,10 @@ const columns: ColumnDef<ClientColumn>[] = [
       )
     },
     cell: ({ row }) => {
-      const rowValue = row.getValue('lastTransaction') as Date
+      const rowValue = row.getValue('lastTransaction') as Date | null
       return (
         <div className="px-3">
-          <ValueRenderer value={rowValue} />
+          {rowValue ? <ValueRenderer value={rowValue} /> : 'Unknown'}
         </div>
       )
     }
@@ -210,12 +209,12 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
           amount: Number(client.balance),
           name: client.name,
           walletAddress: client.walletAddress,
-          lastTransaction: formatDatabaseDateToDay(
-            client.metrics.lastTransaction
-          )
+          lastTransaction: client.metrics.lastTransaction
+            ? new Date(client.metrics.lastTransaction)
+            : null
         })) ?? []
     )
-  }, [clients])
+  }, [clients, groupId])
 
   const table = useReactTable({
     data: formattedData,

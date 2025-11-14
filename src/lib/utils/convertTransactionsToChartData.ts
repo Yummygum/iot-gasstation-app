@@ -2,8 +2,8 @@
  * Helper functions to convert transaction API data into chart-ready formats
  */
 
+import { formatDateToDay } from './dateUtils'
 import { fillMissingDays } from './fillMissingDays'
-import { formatDateToDay } from './formatDateToDay'
 
 export interface Transaction {
   groupId: string

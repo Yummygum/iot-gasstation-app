@@ -8,6 +8,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import { CurrencyProvider } from '@/contexts/CurrencyContext'
 import { ExchangeRateProvider } from '@/contexts/ExchangeRateContext'
+import { SettingsProvider } from '@/contexts/SettingsContext'
 
 import { ApolloWrapper } from './ApolloWrapper'
 import './globals.css'
@@ -31,28 +32,30 @@ const RootLayout = ({
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
         <ApolloWrapper>
-          <CurrencyProvider>
-            <ExchangeRateProvider>
-              <SidebarProvider
-                style={
-                  {
-                    '--sidebar-width': '288px',
-                    '--header-height': 'calc(var(--spacing) * 12)'
-                  } as CSSProperties
-                }
-              >
-                <AppSidebar variant="inset" />
+          <SettingsProvider>
+            <CurrencyProvider>
+              <ExchangeRateProvider>
+                <SidebarProvider
+                  style={
+                    {
+                      '--sidebar-width': '288px',
+                      '--header-height': 'calc(var(--spacing) * 12)'
+                    } as CSSProperties
+                  }
+                >
+                  <AppSidebar variant="inset" />
 
-                <SidebarInset>
-                  <div className="flex flex-1 flex-col overscroll-none">
-                    <div className="@container/main flex flex-1 flex-col gap-2 overscroll-none">
-                      {children}
+                  <SidebarInset>
+                    <div className="flex flex-1 flex-col overscroll-none">
+                      <div className="@container/main flex flex-1 flex-col gap-2 overscroll-none">
+                        {children}
+                      </div>
                     </div>
-                  </div>
-                </SidebarInset>
-              </SidebarProvider>
-            </ExchangeRateProvider>
-          </CurrencyProvider>
+                  </SidebarInset>
+                </SidebarProvider>
+              </ExchangeRateProvider>
+            </CurrencyProvider>
+          </SettingsProvider>
         </ApolloWrapper>
 
         <Toaster />

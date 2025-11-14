@@ -34,6 +34,7 @@ import {
   convertToBarChartData,
   convertToPieChartData
 } from '@/lib/utils/convertTransactionsToChartData'
+import { formatDateShort, formatTooltipDate } from '@/lib/utils/dateUtils'
 
 import IOTAAmount from '../IOTAAmount'
 import { Button } from '../ui/button'
@@ -118,20 +119,6 @@ function hasNoChartData(
 /**
  * Custom tooltip for bar chart showing client breakdown
  */
-/**
- * Formats a date string for display in the tooltip
- */
-function formatTooltipDate(label?: string): string {
-  if (!label) {
-    return ''
-  }
-
-  return new Date(label).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
-}
 
 /**
  * Custom tooltip for bar chart showing client breakdown
@@ -331,11 +318,7 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
                 dataKey="date"
                 minTickGap={32}
                 tickFormatter={(value) => {
-                  const date = new Date(value)
-                  return date.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric'
-                  })
+                  return formatDateShort(value)
                 }}
                 tickLine={false}
                 tickMargin={8}

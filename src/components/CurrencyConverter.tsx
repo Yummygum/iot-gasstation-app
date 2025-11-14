@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { useExchangeRate } from '@/contexts/ExchangeRateContext'
+import { useSettings } from '@/contexts/SettingsContext'
 import { parseNumber } from '@/lib/utils'
 
 import IOTAAmount from './IOTAAmount'
@@ -59,10 +60,12 @@ const CurrencyConverter = ({ name = 'euroAmount' }: CurrencyConverterProps) => {
   const [euro, setEuro] = useState('')
   const { currency } = useCurrency()
   const { exchangeRate } = useExchangeRate()
+  const { locale } = useSettings()
 
   const parsedAmount = parseNumber(euro)
-  // exchangeRate is the price of 1 IOTA in the selected currency
-  const exactValue = exchangeRate ? exchangeRate * parsedAmount : 0
+  // exchangeRate is how many IOTA per 1 unit of the selected currency
+  // To convert currency to IOTA: IOTA = Currency * exchangeRate
+  const exactValue = exchangeRate ? parsedAmount * exchangeRate : 0
 
   const {
     formatted,
@@ -95,7 +98,7 @@ const CurrencyConverter = ({ name = 'euroAmount' }: CurrencyConverterProps) => {
           <IOTAAmount amount={formatted} hasIOTAMark size="xl" />
           {isTruncated && (
             <p className="text-muted-foreground absolute -bottom-5 mt-1 font-mono text-xs">
-              {exactIotaValue.toLocaleString()}
+              {exactIotaValue.toLocaleString(locale)}
             </p>
           )}
         </output>

@@ -1,5 +1,5 @@
 import { createUTCDateAtStartOfDay } from './createUTCDateAtStartOfDay'
-import { formatDateToDay } from './formatDateToDay'
+import { formatDateToDay } from './dateUtils'
 import { incrementUTCDateByDay } from './incrementUTCDateByDay'
 
 /**
@@ -27,4 +27,3 @@ export function fillMissingDays(
 
   return filled
 }
-
