@@ -38,12 +38,12 @@ import SidebarHeaderContent from './SidebarHeaderContent'
 
 // Loading skeleton component for client items
 const ClientItemSkeleton = () => (
-  <SidebarGroup className="rounded-md">
+  <SidebarGroup className="rounded-md px-1 py-4">
     <SidebarGroupLabel className="text-sm">
-      <div className="flex cursor-pointer items-center gap-2">
-        <Skeleton className="size-4 rounded-full" />
+      <div className="flex w-full cursor-pointer items-center justify-center gap-2.5">
+        <Skeleton className="size-6 rounded-sm" />
         <Skeleton className="h-4 w-32" />
-        <Skeleton className="ml-auto h-4 w-4" />
+        <Skeleton className="ml-auto size-2 self-end" />
       </div>
     </SidebarGroupLabel>
   </SidebarGroup>
@@ -106,7 +106,7 @@ const ClientList = ({ isActive }: { isActive: (route: string) => boolean }) => {
             </EmptyMedia>
             <EmptyTitle className="text-sm">No clients found</EmptyTitle>
             <EmptyDescription className="text-xs">
-              No client groups are available at the moment.
+              No groups are available at the moment.
             </EmptyDescription>
           </EmptyContent>
         </Empty>

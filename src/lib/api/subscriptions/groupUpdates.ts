@@ -4,9 +4,20 @@ export const GROUP_UPDATES_SUBSCRIPTION = graphql(`
   subscription GroupUpdatesSubscription {
     groupUpdates {
       groupId
-      name
       balance
+      members
       name
+      estimatedRemainingTransactions
+      estimatedDepletionDate
+      logoUri
+      metrics {
+        allTime {
+          totalTransactions
+        }
+      }
+      status {
+        variant
+      }
     }
   }
 `)

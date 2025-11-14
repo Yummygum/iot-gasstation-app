@@ -18,29 +18,31 @@ interface GroupPageProps {
 const GroupPage = ({ params }: GroupPageProps) => {
   const { id } = use(params)
 
-  const { data, loading } = useQuery(GET_GROUP, {
+  const { data, loading, dataState } = useQuery(GET_GROUP, {
     variables: {
       groupId: id
     }
   })
 
+  const isLoading = loading || dataState !== 'complete'
+
   return (
     <div>
-      <GroupPageHeader isLoading={loading} />
+      <GroupPageHeader isLoading={isLoading} />
 
       <section className="flex flex-col gap-10 p-4 pt-0">
-        {data?.getGroup?.status && (
-          <StatusNotifier
-            variant={
-              data?.getGroup?.status?.variant as
-                | 'action'
-                | 'warning'
-                | 'success'
-            }
-          />
-        )}
+        <StatusNotifier
+          isLoading={isLoading}
+          variant={
+            data?.getGroup?.status?.variant as
+              | 'action'
+              | 'warning'
+              | 'success'
+              | undefined
+          }
+        />
 
-        <GroupBudgetBar groupId={id} isLoading={loading} />
+        <GroupBudgetBar groupId={id} isLoading={isLoading} />
 
         <GasChart groupId={id} />
 

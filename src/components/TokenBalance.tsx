@@ -21,7 +21,7 @@ const TokenBalance = ({ hasIOTAMark = true }: ITokenBalanceProps) => {
     document: SPONSOR_WALLET_UPDATES_SUBSCRIPTION,
     onUpdate: (prev, update) => ({
       ...prev,
-      tokenBalance: update.tokenBalanceUpdates.balance
+      ...update.sponsorWalletUpdates
     })
   })
 

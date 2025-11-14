@@ -3,11 +3,13 @@ import { graphql, ResultOf } from '../graphql'
 const CLIENT_UPDATES_SUBSCRIPTION = graphql(`
   subscription GetClientUpdatesSubscription {
     clientUpdates {
-      balance
-      clientId
-      groupId
       name
+      clientId
+      balance
+      name
+      groupId
       walletAddress
+      balance
     }
   }
 `)

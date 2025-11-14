@@ -2,18 +2,22 @@ import { AlertCircle, AlertTriangle, CheckCircle } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+import { Skeleton } from './ui/skeleton'
+
 type StatusNotifierProps = {
   variant?: 'action' | 'warning' | 'success'
   title?: string
   description?: string
   className?: string
+  isLoading?: boolean
 }
 
 const StatusNotifier = ({
-  variant = 'action',
+  variant = 'success',
   title,
   description,
-  className
+  className,
+  isLoading
 }: StatusNotifierProps) => {
   const config = {
     action: {
@@ -55,13 +59,19 @@ const StatusNotifier = ({
         <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
           Status
         </p>
-        <div className={cn('flex items-center gap-3 rounded-lg p-2', bgColor)}>
-          <Icon className={cn('size-4 shrink-0', iconColor)} />
-          <p className="text-foreground text-xl font-medium">{statusTitle}</p>
+        {isLoading ? (
+          <Skeleton className="h-10 w-full" />
+        ) : (
+          <div
+            className={cn('flex items-center gap-3 rounded-lg p-2', bgColor)}
+          >
+            <Icon className={cn('size-4 shrink-0', iconColor)} />
+            <p className="text-foreground text-xl font-medium">{statusTitle}</p>
+          </div>
+        )}
+        <div className="text-muted-foreground text-sm leading-tight">
+          {isLoading ? <Skeleton className="h-5 w-3/4" /> : statusDescription}
         </div>
-        <p className="text-muted-foreground text-sm leading-tight">
-          {statusDescription}
-        </p>
       </div>
     </div>
   )

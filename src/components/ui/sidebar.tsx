@@ -436,7 +436,7 @@ const SidebarGroup = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
   ({ className, ...props }, ref) => {
     return (
       <div
-        className={cn('relative flex w-full min-w-0 flex-col p-2', className)}
+        className={cn('relative flex w-full min-w-0 flex-col p-0', className)}
         data-sidebar="group"
         ref={ref}
         {...props}

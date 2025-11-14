@@ -6,10 +6,10 @@ const SidebarHeaderContent = () => {
       <Image
         alt="IOTA Gas Station logo"
         className="dark:invert"
-        height={38}
+        height={24}
         priority
-        src="/iota-gas-logo.svg"
-        width={140}
+        src="/iota-logo.svg"
+        width={92}
       />
     </div>
   )

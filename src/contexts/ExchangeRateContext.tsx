@@ -3,7 +3,9 @@
 import { useQuery } from '@apollo/client/react'
 import { createContext, ReactNode, useContext, useMemo } from 'react'
 
+import { useApolloSubscription } from '@/hooks/useApolloSubscription'
 import { GET_CONVERSION_RATES } from '@/lib/api/queries/getConversionRates'
+import CONVERSION_RATES_SUBSCRIPTION from '@/lib/api/subscriptions/conversionRatesUpdates'
 
 import { useSettings } from './SettingsContext'
 
@@ -17,7 +19,16 @@ const ExchangeRateContext = createContext<ExchangeRateContextType>({
 
 export const ExchangeRateProvider = ({ children }: { children: ReactNode }) => {
   const { currency } = useSettings()
-  const { data } = useQuery(GET_CONVERSION_RATES)
+  const { data, subscribeToMore } = useQuery(GET_CONVERSION_RATES)
+
+  useApolloSubscription({
+    subscribeToMore,
+    document: CONVERSION_RATES_SUBSCRIPTION,
+    onUpdate: (prev, update) => ({
+      ...prev,
+      ...update.conversionRateUpdates
+    })
+  })
 
   const exchangeRate = useMemo(() => {
     if (!data?.getConversionRates) {
