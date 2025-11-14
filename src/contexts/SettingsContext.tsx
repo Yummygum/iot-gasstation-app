@@ -13,10 +13,43 @@ import {
   setLocale as setDateUtilsLocale
 } from '@/lib/utils/dateUtils'
 
+export type Currency = 'EUR' | 'USD'
+
+const CURRENCY_STORAGE_KEY = 'app-currency'
+
+/**
+ * Gets the current currency from localStorage
+ * Falls back to 'EUR' if not available
+ */
+function getCurrency(): Currency {
+  if (typeof window === 'undefined') {
+    return 'EUR'
+  }
+
+  const storedCurrency = localStorage.getItem(CURRENCY_STORAGE_KEY)
+  if (storedCurrency === 'EUR' || storedCurrency === 'USD') {
+    return storedCurrency
+  }
+
+  return 'EUR'
+}
+
+/**
+ * Sets the currency preference in localStorage
+ */
+function setCurrencyStorage(currency: Currency): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(CURRENCY_STORAGE_KEY, currency)
+  }
+}
+
 interface SettingsContextType {
   locale: string
+  currency: Currency
   // eslint-disable-next-line no-unused-vars
   setLocale: (locale: string) => void
+  // eslint-disable-next-line no-unused-vars
+  setCurrency: (currency: Currency) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -31,10 +64,15 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   // Initialize locale from localStorage or browser default
   const [locale, setLocaleState] = useState<string>(() => {
     if (typeof window === 'undefined') {
-      return 'en-US'
+      return 'en-GB'
     }
 
     return getLocale()
+  })
+
+  // Initialize currency from localStorage
+  const [currency, setCurrencyState] = useState<Currency>(() => {
+    return getCurrency()
   })
 
   const setLocale = (newLocale: string) => {
@@ -42,7 +80,12 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     setDateUtilsLocale(newLocale)
   }
 
-  // Listen for storage changes (in case locale is changed in another tab)
+  const setCurrency = (newCurrency: Currency) => {
+    setCurrencyState(newCurrency)
+    setCurrencyStorage(newCurrency)
+  }
+
+  // Listen for storage changes (in case locale or currency is changed in another tab)
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
@@ -51,6 +94,12 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'app-locale' && event.newValue) {
         setLocaleState(event.newValue)
+      }
+
+      if (event.key === CURRENCY_STORAGE_KEY && event.newValue) {
+        if (event.newValue === 'EUR' || event.newValue === 'USD') {
+          setCurrencyState(event.newValue)
+        }
       }
     }
 
@@ -61,7 +110,9 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   }, [])
 
   return (
-    <SettingsContext.Provider value={{ locale, setLocale }}>
+    <SettingsContext.Provider
+      value={{ locale, currency, setLocale, setCurrency }}
+    >
       {children}
     </SettingsContext.Provider>
   )
