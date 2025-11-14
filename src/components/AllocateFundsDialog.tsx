@@ -1,7 +1,9 @@
 'use client'
-import { useMutation } from '@apollo/client/react'
+import { useFragment, useMutation } from '@apollo/client/react'
 import React, { useState } from 'react'
+import { toast } from 'sonner'
 
+import { graphql } from '@/lib/api/graphql'
 import ALLOCATE_FUNDS_TO_GROUP_MUTATION from '@/lib/api/mutations/allocateFundsToGroup'
 import WITHDRAW_FUNDS_FROM_GROUP_MUTATION from '@/lib/api/mutations/withdrawFundsFromGroup'
 import GET_GROUP from '@/lib/api/queries/getGroup'
@@ -22,12 +24,28 @@ interface AllocateFundsDialogProps {
   children: React.ReactNode
 }
 
+const GET_GROUP_FRAGMENT = graphql(`
+  fragment GetGroupBalanceFragment on GroupDto {
+    groupId
+    name
+    balance
+  }
+`)
+
 const AllocateFundsDialog = ({
   groupId,
   children
 }: AllocateFundsDialogProps) => {
   const [isAddMode, setIsAddMode] = useState(true)
   const [isOpen, setIsOpen] = useState(false)
+
+  const { data: groupData } = useFragment({
+    fragment: GET_GROUP_FRAGMENT,
+    from: {
+      __typename: 'GroupDto',
+      groupId
+    }
+  })
 
   const [allocateFunds, { loading: allocateLoading }] = useMutation(
     ALLOCATE_FUNDS_TO_GROUP_MUTATION,
@@ -43,10 +61,33 @@ const AllocateFundsDialog = ({
     }
   )
 
+  // eslint-disable-next-line max-statements
   const processFunds = async (amount: number) => {
     const mutation = isAddMode ? allocateFunds : withdrawFunds
-    await mutation({ variables: { amount, groupId } })
-    setIsOpen(false)
+
+    const oldBalance = groupData?.balance
+
+    try {
+      const { data } = await mutation({ variables: { amount, groupId } })
+      if (data?.funds.balance && oldBalance) {
+        const difference = data.funds.balance - oldBalance
+
+        if (difference > 0) {
+          toast.success(
+            `Allocated ${Math.abs(difference)} IOTA to the group "${groupData?.name}"`
+          )
+        } else {
+          toast.success(
+            `Withdrew ${Math.abs(difference)} IOTA from the group "${groupData?.name}"`
+          )
+        }
+      }
+    } catch (error) {
+      console.error('Error allocating funds:', error)
+      toast.error('Failed to allocate funds')
+    } finally {
+      setIsOpen(false)
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

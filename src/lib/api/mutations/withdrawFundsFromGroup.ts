@@ -2,7 +2,7 @@ import { graphql, VariablesOf } from '../graphql'
 
 const WITHDRAW_FUNDS_FROM_GROUP_MUTATION = graphql(`
   mutation WithdrawFundsFromGroup($amount: Int!, $groupId: UUID!) {
-    withdrawFundsFromGroup(amount: $amount, groupId: $groupId) {
+    funds: withdrawFundsFromGroup(amount: $amount, groupId: $groupId) {
       balance
       groupId
       members

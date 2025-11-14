@@ -45,9 +45,9 @@ const AddFundsDialog = ({ children }: AddFundsDialogProps) => {
 
       <DialogContent className="max-w-[561px]">
         <DialogHeader className="mb-6">
-          <DialogTitle>Add funds to wallet</DialogTitle>
+          <DialogTitle>Top up funds</DialogTitle>
           <DialogDescription>
-            Top up your account using your wallet
+            Scan the QR code or copy the address to top up funds.
           </DialogDescription>
           <DialogClose />
         </DialogHeader>
