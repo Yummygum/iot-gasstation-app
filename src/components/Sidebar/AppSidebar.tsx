@@ -143,7 +143,7 @@ const ClientList = ({ isActive }: { isActive: (route: string) => boolean }) => {
                       src={menuItem.logoUri}
                     />
                   )}
-                  <AvatarFallback className="w-full text-center text-sm">
+                  <AvatarFallback className="bg-primary text-primary-foreground w-full text-center text-sm">
                     {menuItem.name.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

@@ -33,7 +33,7 @@ const DashboardHeader = ({
           className="object-fit size-full rounded-none object-center"
           src={walletData.logoUri ?? ''}
         />
-        <AvatarFallback className="size-full w-full rounded-none text-center">
+        <AvatarFallback className="bg-primary text-primary-foreground size-full w-full rounded-none text-center">
           {walletData.name?.charAt(0).toUpperCase() ?? '?'}
         </AvatarFallback>
       </Avatar>

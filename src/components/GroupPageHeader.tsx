@@ -51,7 +51,7 @@ const GroupPageHeader = ({ isLoading }: { isLoading: boolean }) => {
             src={data.logoUri ?? ''}
           />
         )}
-        <AvatarFallback className="w-full rounded-none text-center">
+        <AvatarFallback className="bg-primary text-primary-foreground w-full rounded-none text-center">
           {data.name?.charAt(0).toUpperCase()}
         </AvatarFallback>
       </Avatar>
