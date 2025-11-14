@@ -1,26 +1,25 @@
-import { BellDotIcon } from 'lucide-react'
-
 import TokenBalance from '../TokenBalance'
-import { Button } from '../ui/button'
-import { Separator } from '../ui/separator'
+import { Avatar, AvatarImage } from '../ui/avatar'
 
 const SidebarFooterContent = () => {
   return (
     <>
-      <footer className="flex w-full flex-col items-center gap-8">
-        <Separator />
+      <footer className="flex w-full flex-col items-center gap-2">
+        <div className="bg- flex w-full items-center gap-4 rounded-md border p-2">
+          <Avatar className="size-10 rounded-md">
+            <AvatarImage className="rounded-none" src="/impierce-logo.jpg" />
+          </Avatar>
 
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex flex-col gap-1 text-sm">
-            <p className="text-md font-medium">Jelle Millenaar</p>
+          <div className="flex w-full flex-col gap-1 text-sm">
+            <p className="text-md text- font-semibold">Jelle Millenaar</p>
             <TokenBalance />
           </div>
 
-          <div className="flex gap-2">
+          {/* <div className="flex gap-2">
             <Button size="icon-lg" variant="ghost">
-              <BellDotIcon className="size-6" />
+              <BellDotIcon className="size-4" />
             </Button>
-          </div>
+          </div> */}
         </div>
       </footer>
     </>
