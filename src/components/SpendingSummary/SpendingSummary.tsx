@@ -1,42 +1,81 @@
-import { ComponentType, SVGProps } from 'react'
+import { useMemo } from 'react'
 
-import IOTASymbol from '@/components/ui/IOTASymbol'
-import { Item, ItemContent } from '@/components/ui/item'
+import { GetSponsorWalletQuery } from '@/lib/api/queries/getSponsorWallet'
 
 import IOTAAmount from '../IOTAAmount'
+import { Item, ItemContent, ItemTitle } from '../ui/item'
 
 interface ISpendingData {
   title: string
   amount: number
-  icon: ComponentType<SVGProps<SVGSVGElement>> | null
   subItems?: Omit<ISpendingData, 'subItems'>[]
 }
 
-const spendingData: ISpendingData[] = [
-  {
-    title: 'IOTA Used',
-    amount: 402,
-    icon: IOTASymbol,
-    subItems: [
+interface SpendingSummaryProps {
+  walletData?: GetSponsorWalletQuery['getSponsorWallet']
+  isLoading?: boolean
+}
+
+const SpendingSummary = ({ walletData, isLoading }: SpendingSummaryProps) => {
+  const spendingData: ISpendingData[] = useMemo(() => {
+    const metrics = walletData?.metrics?.allTime
+
+    if (!metrics) {
+      return []
+    }
+
+    return [
       {
-        title: 'Amount of transactions',
-        amount: 12712,
-        icon: null
+        title: 'Total gas spent',
+        amount: metrics.totalSponsoredAmount,
+        subItems: [
+          {
+            title: 'Total transactions',
+            amount: metrics.totalTransactions
+          },
+          {
+            title: 'Average per day',
+            amount: metrics.averageDailySponsoredAmount
+          }
+        ]
+      },
+      {
+        title: 'Average transaction fee',
+        amount: metrics.averageTransactionFee
+      },
+      {
+        title: 'Daily transaction rate',
+        amount: metrics.averageDailyTransactions
       }
     ]
-  },
-  {
-    title: 'Average transaction size',
-    amount: 0.0002,
-    icon: IOTASymbol
-  }
-]
+  }, [walletData])
 
-const SpendingSummary = () => {
+  if (isLoading) {
+    return (
+      <Item variant="outline">
+        <ItemContent className="h-fit">
+          <ItemTitle className="text-lg">All time</ItemTitle>
+          <p className="text-muted-foreground text-sm">Loading...</p>
+        </ItemContent>
+      </Item>
+    )
+  }
+
+  if (!spendingData.length) {
+    return (
+      <Item variant="outline">
+        <ItemContent className="h-fit">
+          <ItemTitle className="text-lg">All time</ItemTitle>
+          <p className="text-muted-foreground text-sm">No data available</p>
+        </ItemContent>
+      </Item>
+    )
+  }
+
   return (
     <Item variant="outline">
       <ItemContent className="h-fit">
-        <h2 className="text-muted-foreground mb-2">Past week</h2>
+        <ItemTitle className="text-lg">All time</ItemTitle>
 
         {spendingData.map((data) => (
           <div className="py-2" key={data.title}>

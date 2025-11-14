@@ -37,7 +37,10 @@ const Dashboard = () => {
 
       <ClientTable />
 
-      <SpendingSummary />
+      <SpendingSummary
+        isLoading={isLoading}
+        walletData={data?.getSponsorWallet}
+      />
 
       <NotifyItem
         className="max-w-md"

@@ -13,6 +13,10 @@ const GET_SPONSOR_WALLET = graphql(`
       metrics {
         allTime {
           totalTransactions
+          totalSponsoredAmount
+          averageTransactionFee
+          averageDailyTransactions
+          averageDailySponsoredAmount
         }
       }
     }
