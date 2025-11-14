@@ -1,8 +1,8 @@
 import { graphql, ResultOf } from '../graphql'
 
 const GET_CLIENT_LIST = graphql(`
-  query GetClientList {
-    getClientList {
+  query GetClientList($groupId: UUID) {
+    getClientList(groupId: $groupId) {
       name
       walletAddress
       balance

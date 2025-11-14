@@ -191,30 +191,25 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
   const [showDeleteClientDialog, setShowDeleteClientDialog] = useState(false)
   const [clientId, setClientId] = useState<string | null>(null)
 
-  const { data: clients } = useQuery(GET_CLIENT_LIST)
+  const { data: clients } = useQuery(GET_CLIENT_LIST, {
+    variables: {
+      groupId: groupId
+    }
+  })
 
   const formattedData: ClientColumn[] = useMemo(() => {
     return (
-      clients?.getClientList
-        .filter((client) => {
-          // If a groupId is provided, filter the clients to only include those in the group
-          if (groupId) {
-            return client.groupId === groupId
-          }
-
-          return true
-        })
-        .map((client) => ({
-          id: client.clientId,
-          amount: Number(client.balance),
-          name: client.name,
-          walletAddress: client.walletAddress,
-          lastTransaction: client.metrics.lastTransaction
-            ? new Date(client.metrics.lastTransaction)
-            : null
-        })) ?? []
+      clients?.getClientList.map((client) => ({
+        id: client.clientId,
+        amount: Number(client.balance),
+        name: client.name,
+        walletAddress: client.walletAddress,
+        lastTransaction: client.metrics.lastTransaction
+          ? new Date(client.metrics.lastTransaction)
+          : null
+      })) ?? []
     )
-  }, [clients, groupId])
+  }, [clients])
 
   const table = useReactTable({
     data: formattedData,
@@ -248,8 +243,8 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
           {groupName ? `Clients of ${groupName}` : 'Clients'}
         </ItemTitle>
         <ItemDescription className="mb-4">
-          Quickly go over the clients that use the allocated budget of{' '}
-          {groupName ?? 'your account'}.
+          Quickly go over the clients that use the allocated funds of{' '}
+          {groupName ?? 'your wallet'}.
         </ItemDescription>
 
         <CardAction>
