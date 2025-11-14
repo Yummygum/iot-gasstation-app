@@ -43,6 +43,7 @@ import IOTAAmount from '../IOTAAmount'
 import { Card, CardAction, CardContent, CardHeader } from '../ui/card'
 import { DialogTrigger } from '../ui/dialog'
 import { ItemDescription, ItemTitle } from '../ui/item'
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { ValueRenderer } from '../ValueRenderer'
 
 interface ClientTableProps {
@@ -56,6 +57,8 @@ type ClientColumn = {
   name: string
   lastTransaction: Date | null
   walletAddress: string
+  averageDailyTransactions: number | null
+  totalTransactions: number | null
 }
 
 type TableMeta = {
@@ -117,7 +120,7 @@ const columns: ColumnDef<ClientColumn>[] = [
           size="sm"
           variant="ghost"
         >
-          Amount
+          Spent
           <ArrowUpDown />
         </Button>
       )
@@ -126,6 +129,61 @@ const columns: ColumnDef<ClientColumn>[] = [
       return (
         <div className="px-3">
           <IOTAAmount amount={row.getValue('amount')} />
+        </div>
+      )
+    }
+  },
+  {
+    accessorKey: 'averageDailyTransactions',
+    header: ({ column }) => {
+      return (
+        <Button
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          size="sm"
+          variant="ghost"
+        >
+          Avg daily transactions
+          <ArrowUpDown />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const value = row.getValue('averageDailyTransactions') as number | null
+      return (
+        <div className="px-3">
+          {value !== null ? <IOTAAmount amount={value} /> : 'Unknown'}
+        </div>
+      )
+    }
+  },
+  {
+    accessorKey: 'totalTransactions',
+    header: ({ column }) => {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+              size="sm"
+              variant="ghost"
+            >
+              Recent transactions
+              <ArrowUpDown />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>The total amount of transactions the past 7 days</p>
+          </TooltipContent>
+        </Tooltip>
+      )
+    },
+    cell: ({ row }) => {
+      const value = row.getValue('totalTransactions') as number | null
+      return (
+        <div className="px-3">
+          {value !== null ? value.toLocaleString() : 'Unknown'}
         </div>
       )
     }
@@ -191,30 +249,32 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
   const [showDeleteClientDialog, setShowDeleteClientDialog] = useState(false)
   const [clientId, setClientId] = useState<string | null>(null)
 
-  const { data: clients } = useQuery(GET_CLIENT_LIST)
+  const { data: clients } = useQuery(GET_CLIENT_LIST, {
+    variables: {
+      groupId: groupId
+    }
+  })
 
   const formattedData: ClientColumn[] = useMemo(() => {
     return (
-      clients?.getClientList
-        .filter((client) => {
-          // If a groupId is provided, filter the clients to only include those in the group
-          if (groupId) {
-            return client.groupId === groupId
-          }
-
-          return true
-        })
-        .map((client) => ({
-          id: client.clientId,
-          amount: Number(client.balance),
-          name: client.name,
-          walletAddress: client.walletAddress,
-          lastTransaction: client.metrics.lastTransaction
-            ? new Date(client.metrics.lastTransaction)
-            : null
-        })) ?? []
+      clients?.getClientList.map((client) => ({
+        id: client.clientId,
+        amount: Number(client.balance),
+        name: client.name,
+        walletAddress: client.walletAddress,
+        lastTransaction: client.metrics.lastTransaction
+          ? new Date(client.metrics.lastTransaction)
+          : null,
+        averageDailyTransactions: client.metrics.allTime
+          ?.averageDailyTransactions
+          ? Number(client.metrics.allTime.averageDailyTransactions)
+          : null,
+        totalTransactions: client.metrics.last7Days?.totalTransactions
+          ? Number(client.metrics.last7Days.totalTransactions)
+          : null
+      })) ?? []
     )
-  }, [clients, groupId])
+  }, [clients])
 
   const table = useReactTable({
     data: formattedData,
@@ -248,8 +308,8 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
           {groupName ? `Clients of ${groupName}` : 'Clients'}
         </ItemTitle>
         <ItemDescription className="mb-4">
-          Quickly go over the clients that use the allocated budget of{' '}
-          {groupName ?? 'your account'}.
+          Quickly go over the clients that use the allocated funds of{' '}
+          {groupName ?? 'your wallet'}.
         </ItemDescription>
 
         <CardAction>

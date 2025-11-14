@@ -55,12 +55,14 @@ interface CurrencyConverterProps {
   name?: string
 }
 
-const CurrencyConverter = ({ name = 'euroAmount' }: CurrencyConverterProps) => {
-  const [euro, setEuro] = useState('')
+const CurrencyConverter = ({
+  name = 'currencyAmount'
+}: CurrencyConverterProps) => {
+  const [currencyAmount, setCurrencyAmount] = useState('')
   const { currency, locale } = useSettings()
   const { exchangeRate } = useExchangeRate()
 
-  const parsedAmount = parseNumber(euro)
+  const parsedAmount = parseNumber(currencyAmount)
   // exchangeRate is how many IOTA per 1 unit of the selected currency
   // To convert currency to IOTA: IOTA = Currency * exchangeRate
   const exactValue = exchangeRate ? parsedAmount * exchangeRate : 0
@@ -82,9 +84,11 @@ const CurrencyConverter = ({ name = 'euroAmount' }: CurrencyConverterProps) => {
             className="w-32 bg-transparent text-center text-4xl font-light outline-none"
             inputMode="decimal"
             name={name}
-            onChange={(event) => setEuro(sanitizeInput(event.target.value))}
+            onChange={(event) =>
+              setCurrencyAmount(sanitizeInput(event.target.value))
+            }
             placeholder={currency === 'EUR' ? '00,00' : '00.00'}
-            value={euro}
+            value={currencyAmount}
           />
           <input name="iotaAmount" type="hidden" value={exactValue} />
         </div>

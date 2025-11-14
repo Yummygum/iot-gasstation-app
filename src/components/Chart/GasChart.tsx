@@ -79,7 +79,7 @@ function getChartDescription(timeRangeDays: number): string {
     90: 'Last 3 months'
   }
 
-  return `Showing gas spent for ${timeframeLabels[timeRangeDays] || `the last ${timeRangeDays} days`}`
+  return `Showing gas spent for the ${timeframeLabels[timeRangeDays].toLowerCase() || `the last ${timeRangeDays} days`}`
 }
 
 /**

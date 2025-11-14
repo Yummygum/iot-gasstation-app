@@ -13,6 +13,9 @@ const GET_GROUP_LIST = graphql(`
           totalTransactions
         }
       }
+      status {
+        variant
+      }
     }
   }
 `)

@@ -1,8 +1,8 @@
 import { graphql, ResultOf } from '../graphql'
 
 const GET_CLIENT_LIST = graphql(`
-  query GetClientList {
-    getClientList {
+  query GetClientList($groupId: UUID) {
+    getClientList(groupId: $groupId) {
       name
       walletAddress
       balance
@@ -13,6 +13,10 @@ const GET_CLIENT_LIST = graphql(`
         firstTransaction
         lastTransaction
         allTime {
+          totalTransactions
+          averageDailyTransactions
+        }
+        last7Days {
           totalTransactions
         }
       }

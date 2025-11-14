@@ -1,6 +1,5 @@
 'use client'
 
-import { useFragment } from '@apollo/client/react'
 import {
   LogOutIcon,
   SettingsIcon,
@@ -9,7 +8,7 @@ import {
   WalletIcon
 } from 'lucide-react'
 
-import { graphql } from '@/lib/api/graphql'
+import { GetSponsorWalletQuery } from '@/lib/api/queries/getSponsorWallet'
 
 import AddClientDialog from '../AddClientDialog'
 import AddFundsDialog from '../AddFundsDialog'
@@ -26,27 +25,10 @@ import {
 } from '../ui/dropdown-menu'
 
 interface SidebarFooterContentProps {
-  sponsorWalletId?: string
+  walletData?: GetSponsorWalletQuery['getSponsorWallet']
 }
 
-const SIDEBAR_FOOTER_WALLET_FRAGMENT = graphql(`
-  fragment SidebarFooterFragment on SponsorWalletDto {
-    name
-    logoUri
-  }
-`)
-
-const SidebarFooterContent = ({
-  sponsorWalletId
-}: SidebarFooterContentProps) => {
-  const { data } = useFragment({
-    fragment: SIDEBAR_FOOTER_WALLET_FRAGMENT,
-    from: {
-      __typename: 'SponsorWalletDto',
-      sponsorWalletId
-    }
-  })
-
+const SidebarFooterContent = ({ walletData }: SidebarFooterContentProps) => {
   const handleLogout = () => {
     // TODO: Implement logout logic
   }
@@ -55,14 +37,8 @@ const SidebarFooterContent = ({
     // TODO: Implement settings navigation
   }
 
-  const walletName = data?.name || 'Sponsor Wallet'
-  const walletAvatar = data?.logoUri || undefined
-  const initials = walletName
-    .split(' ')
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
+  const walletName = walletData?.name || 'Sponsor Wallet'
+  const walletAvatar = walletData?.logoUri || undefined
 
   return (
     <footer className="flex w-full flex-col items-center gap-2">
@@ -76,7 +52,7 @@ const SidebarFooterContent = ({
                 src={walletAvatar}
               />
               <AvatarFallback className="bg-primary text-primary-foreground rounded-md">
-                {initials}
+                {walletName?.charAt(0).toUpperCase() ?? '?'}
               </AvatarFallback>
             </Avatar>
 
