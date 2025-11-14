@@ -46,6 +46,7 @@ const SidebarFooterContent = ({
       sponsorWalletId
     }
   })
+
   const handleLogout = () => {
     // TODO: Implement logout logic
   }
@@ -86,11 +87,7 @@ const SidebarFooterContent = ({
           </div>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent
-          align="center"
-          className="w-(--sidebar-width)"
-          side="top"
-        >
+        <DropdownMenuContent align="center" className="w-68" side="top">
           <DropdownMenuItem disabled onClick={handleSettings}>
             <SettingsIcon />
             Settings
