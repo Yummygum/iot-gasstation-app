@@ -145,7 +145,7 @@ const ClientList = ({ isActive }: { isActive: (route: string) => boolean }) => {
                 <span className="truncate">{menuItem.name}</span>
               </span>
 
-              <StatusIndicator status={'ok'} />
+              <StatusIndicator status={menuItem.status.variant} />
             </Link>
           </Button>
         </SidebarMenuItem>

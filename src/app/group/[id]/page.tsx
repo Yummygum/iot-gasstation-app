@@ -28,6 +28,10 @@ const GroupPage = ({ params }: GroupPageProps) => {
       <GroupPageHeader isLoading={loading} />
 
       <section className="flex flex-col gap-10 p-4">
+        {/* {data?.getGroup?.status && (
+          <StatusNotifier variant={data?.getGroup?.status?.variant} />
+        )} */}
+
         <GroupBudgetBar groupId={id} isLoading={loading} />
 
         <GasChart groupId={id} />

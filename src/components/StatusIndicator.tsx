@@ -3,15 +3,15 @@ import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
 interface StatusIndicatorProps {
-  status: 'ok' | 'error' | 'warning'
+  status: 'action' | 'warning' | 'success'
 }
 
 const StatusIndicator = ({ status }: StatusIndicatorProps) => {
   const color = useMemo(() => {
     switch (status) {
-      case 'ok':
+      case 'success':
         return 'bg-green-500'
-      case 'error':
+      case 'action':
         return 'bg-red-500'
       case 'warning':
         return 'bg-yellow-500'
