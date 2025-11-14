@@ -20,6 +20,7 @@ import {
   SidebarSeparator
 } from '@/components/ui/sidebar'
 import GET_GROUP_LIST from '@/lib/api/queries/getGroupList'
+import GET_SPONSOR_WALLET from '@/lib/api/queries/getSponsorWallet'
 
 import StatusIndicator from '../StatusIndicator'
 import { Avatar, AvatarImage } from '../ui/avatar'
@@ -165,6 +166,7 @@ const ClientList = ({ isActive }: { isActive: (route: string) => boolean }) => {
 const AppSidebar = ({ ...props }: ComponentProps<typeof Sidebar>) => {
   const activeRoute = usePathname()
   const isActive = (route: string) => activeRoute === route
+  const { data } = useQuery(GET_SPONSOR_WALLET)
 
   return (
     <Sidebar {...props}>
@@ -200,7 +202,7 @@ const AppSidebar = ({ ...props }: ComponentProps<typeof Sidebar>) => {
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarFooterContent />
+        <SidebarFooterContent walletData={data?.getSponsorWallet} />
       </SidebarFooter>
     </Sidebar>
   )

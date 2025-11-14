@@ -1,38 +1,116 @@
-import { BellDotIcon, SettingsIcon } from 'lucide-react'
+'use client'
 
-import SettingsDialog from '../SettingsDialog'
+import {
+  LogOutIcon,
+  SettingsIcon,
+  UserPlusIcon,
+  UsersIcon,
+  WalletIcon
+} from 'lucide-react'
+
+import { GetSponsorWalletQuery } from '@/lib/api/queries/getSponsorWallet'
+
+import AddClientDialog from '../AddClientDialog'
+import AddFundsDialog from '../AddFundsDialog'
+import GroupDialog from '../GroupDialog'
 import TokenBalance from '../TokenBalance'
-import { Button } from '../ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { DialogTrigger } from '../ui/dialog'
-import { Separator } from '../ui/separator'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '../ui/dropdown-menu'
 
-const SidebarFooterContent = () => {
+interface SidebarFooterContentProps {
+  walletData?: GetSponsorWalletQuery['getSponsorWallet']
+}
+
+const SidebarFooterContent = ({ walletData }: SidebarFooterContentProps) => {
+  const handleLogout = () => {
+    // TODO: Implement logout logic
+  }
+
+  const handleSettings = () => {
+    // TODO: Implement settings navigation
+  }
+
+  const walletName = walletData?.name || 'Sponsor Wallet'
+  const walletAvatar = walletData?.logoUri || undefined
+
   return (
-    <>
-      <footer className="flex w-full flex-col items-center gap-8">
-        <Separator />
+    <footer className="flex w-full flex-col items-center gap-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <div className="hover:bg-accent flex w-full cursor-pointer items-center gap-4 rounded-md border p-2 transition-colors">
+            <Avatar className="size-10 rounded-md">
+              <AvatarImage
+                alt={walletName}
+                className="rounded-none"
+                src={walletAvatar}
+              />
+              <AvatarFallback className="bg-primary text-primary-foreground rounded-md">
+                {walletName?.charAt(0).toUpperCase() ?? '?'}
+              </AvatarFallback>
+            </Avatar>
 
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex flex-col gap-1 text-sm">
-            <p className="text-md font-medium">Jelle Millenaar</p>
-            <TokenBalance />
+            <div className="flex w-full flex-col gap-1 text-sm">
+              <p className="text-md font-semibold">{walletName}</p>
+              <TokenBalance />
+            </div>
           </div>
+        </DropdownMenuTrigger>
 
-          <div className="flex gap-2">
-            <SettingsDialog>
-              <DialogTrigger asChild>
-                <Button size="icon-lg" variant="ghost">
-                  <SettingsIcon className="size-6" />
-                </Button>
-              </DialogTrigger>
-            </SettingsDialog>
-            <Button size="icon-lg" variant="ghost">
-              <BellDotIcon className="size-6" />
-            </Button>
-          </div>
-        </div>
-      </footer>
-    </>
+        <DropdownMenuContent align="center" className="w-68" side="top">
+          <DropdownMenuItem disabled onClick={handleSettings}>
+            <SettingsIcon />
+            Settings
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <AddFundsDialog>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                <WalletIcon />
+                Top up funds
+              </DropdownMenuItem>
+            </DialogTrigger>
+          </AddFundsDialog>
+
+          <GroupDialog>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                <UsersIcon />
+                Create group
+              </DropdownMenuItem>
+            </DialogTrigger>
+          </GroupDialog>
+
+          <AddClientDialog>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                <UserPlusIcon />
+                Add client
+              </DropdownMenuItem>
+            </DialogTrigger>
+          </AddClientDialog>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            className="hover:bg-descructive"
+            disabled
+            onClick={handleLogout}
+          >
+            <LogOutIcon />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </footer>
   )
 }
 

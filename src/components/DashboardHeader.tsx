@@ -29,12 +29,12 @@ const DashboardHeader = ({
     <header className="flex w-full items-center gap-3">
       <Avatar className="border-muted size-12 rounded-md border">
         <AvatarImage
-          alt={walletData.name ?? 'Dashboard'}
+          alt={walletData.name ?? '?'}
           className="object-fit size-full rounded-none object-center"
           src={walletData.logoUri ?? ''}
         />
         <AvatarFallback className="size-full w-full rounded-none text-center">
-          {walletData.name?.charAt(0).toUpperCase() ?? 'U'}
+          {walletData.name?.charAt(0).toUpperCase() ?? '?'}
         </AvatarFallback>
       </Avatar>
 
