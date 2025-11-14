@@ -7,7 +7,7 @@ import {
   isValid,
   parseISO
 } from 'date-fns'
-import { enUS, nl } from 'date-fns/locale'
+import { enGB, enUS, nl } from 'date-fns/locale'
 
 /**
  * LocalStorage key for locale preference
@@ -16,11 +16,11 @@ const LOCALE_STORAGE_KEY = 'app-locale'
 
 /**
  * Gets the current locale from localStorage or browser default
- * Falls back to 'en-US' if neither is available
+ * Falls back to 'en-GB' if neither is available
  */
 export function getLocale(): string {
   if (typeof window === 'undefined') {
-    return 'en-US'
+    return 'en-GB'
   }
 
   // Try to get from localStorage first
@@ -31,7 +31,7 @@ export function getLocale(): string {
 
   // Fall back to browser locale
   const browserLocale =
-    navigator.language || navigator.languages?.[0] || 'en-US'
+    navigator.language || navigator.languages?.[0] || 'en-GB'
   return browserLocale
 }
 
@@ -52,6 +52,7 @@ export function getDateFnsLocale(locale?: string): Locale {
   const localeString = locale || getLocale()
   const localeMap: Record<string, Locale> = {
     'en-US': enUS,
+    'en-GB': enGB,
     'nl-NL': nl
   }
 

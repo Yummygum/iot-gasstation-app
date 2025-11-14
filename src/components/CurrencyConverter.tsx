@@ -2,7 +2,6 @@
 import { ArrowLeftRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { useCurrency } from '@/contexts/CurrencyContext'
 import { useExchangeRate } from '@/contexts/ExchangeRateContext'
 import { useSettings } from '@/contexts/SettingsContext'
 import { parseNumber } from '@/lib/utils'
@@ -58,9 +57,8 @@ interface CurrencyConverterProps {
 
 const CurrencyConverter = ({ name = 'euroAmount' }: CurrencyConverterProps) => {
   const [euro, setEuro] = useState('')
-  const { currency } = useCurrency()
+  const { currency, locale } = useSettings()
   const { exchangeRate } = useExchangeRate()
-  const { locale } = useSettings()
 
   const parsedAmount = parseNumber(euro)
   // exchangeRate is how many IOTA per 1 unit of the selected currency

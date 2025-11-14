@@ -6,7 +6,6 @@ import { CSSProperties, ReactNode } from 'react'
 import AppSidebar from '@/components/Sidebar/AppSidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
-import { CurrencyProvider } from '@/contexts/CurrencyContext'
 import { ExchangeRateProvider } from '@/contexts/ExchangeRateContext'
 import { SettingsProvider } from '@/contexts/SettingsContext'
 
@@ -33,28 +32,26 @@ const RootLayout = ({
       <body className={`${inter.variable} font-sans antialiased`}>
         <ApolloWrapper>
           <SettingsProvider>
-            <CurrencyProvider>
-              <ExchangeRateProvider>
-                <SidebarProvider
-                  style={
-                    {
-                      '--sidebar-width': '288px',
-                      '--header-height': 'calc(var(--spacing) * 12)'
-                    } as CSSProperties
-                  }
-                >
-                  <AppSidebar variant="inset" />
+            <ExchangeRateProvider>
+              <SidebarProvider
+                style={
+                  {
+                    '--sidebar-width': '288px',
+                    '--header-height': 'calc(var(--spacing) * 12)'
+                  } as CSSProperties
+                }
+              >
+                <AppSidebar variant="inset" />
 
-                  <SidebarInset>
-                    <div className="flex flex-1 flex-col overscroll-none">
-                      <div className="@container/main flex flex-1 flex-col gap-2 overscroll-none">
-                        {children}
-                      </div>
+                <SidebarInset>
+                  <div className="flex flex-1 flex-col overscroll-none">
+                    <div className="@container/main flex flex-1 flex-col gap-2 overscroll-none">
+                      {children}
                     </div>
-                  </SidebarInset>
-                </SidebarProvider>
-              </ExchangeRateProvider>
-            </CurrencyProvider>
+                  </div>
+                </SidebarInset>
+              </SidebarProvider>
+            </ExchangeRateProvider>
           </SettingsProvider>
         </ApolloWrapper>
 

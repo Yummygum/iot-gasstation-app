@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react'
 
-import { useCurrency } from '@/contexts/CurrencyContext'
 import { useExchangeRate } from '@/contexts/ExchangeRateContext'
+import { useSettings } from '@/contexts/SettingsContext'
 import { cn, formatCurrency } from '@/lib/utils'
 
 import IOTASymbol from './ui/IOTASymbol'
@@ -75,7 +75,7 @@ const IOTAAmount = ({
   hasIOTAMark = true,
   size = 'sm'
 }: IIOTAAmountProps) => {
-  const { currency } = useCurrency()
+  const { currency } = useSettings()
   const { exchangeRate } = useExchangeRate()
 
   const { exchanged, currencySymbol, conversionRate } = useMemo(() => {

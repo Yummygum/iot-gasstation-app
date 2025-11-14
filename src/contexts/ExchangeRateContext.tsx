@@ -3,9 +3,9 @@
 import { useQuery } from '@apollo/client/react'
 import { createContext, ReactNode, useContext, useMemo } from 'react'
 
-import { GET_IOTA_PRICE_QUERY } from '@/lib/api/queries/getIotaPrice'
+import { GET_CONVERSION_RATES } from '@/lib/api/queries/getConversionRates'
 
-import { useCurrency } from './CurrencyContext'
+import { useSettings } from './SettingsContext'
 
 interface ExchangeRateContextType {
   exchangeRate: number | null
@@ -16,23 +16,25 @@ const ExchangeRateContext = createContext<ExchangeRateContextType>({
 })
 
 export const ExchangeRateProvider = ({ children }: { children: ReactNode }) => {
-  const { currency } = useCurrency()
-  const { data } = useQuery(GET_IOTA_PRICE_QUERY)
+  const { currency } = useSettings()
+  const { data } = useQuery(GET_CONVERSION_RATES)
 
   const exchangeRate = useMemo(() => {
-    if (!data) {
+    if (!data?.getConversionRates) {
       return null
     }
 
-    // API returns the price of 1 IOTA in the selected currency (e.g., 0.1196 EUR per IOTA)
-    // We need to invert it to get IOTA per currency unit (e.g., 8.36400 IOTA per EUR)
-    const pricePerIota = currency === 'EUR' ? data.getIotaEurPrice : data.getIotaUsdPrice
-    
-    if (!pricePerIota || pricePerIota === 0) {
+    const rates = data.getConversionRates
+
+    // Get the conversion rate: how many IOTA per 1 unit of the selected currency
+    // e.g., eurToIot means how many IOTA you get for 1 EUR
+    const rate = currency === 'EUR' ? rates.eurToIot : rates.usdToIot
+
+    if (!rate || rate === 0) {
       return null
     }
 
-    return 1 / pricePerIota
+    return rate
   }, [data, currency])
 
   return (
