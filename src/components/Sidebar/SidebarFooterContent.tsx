@@ -1,5 +1,6 @@
 'use client'
 
+import { useFragment } from '@apollo/client/react'
 import {
   LogOutIcon,
   SettingsIcon,
@@ -8,11 +9,13 @@ import {
   WalletIcon
 } from 'lucide-react'
 
+import { graphql } from '@/lib/api/graphql'
+
 import AddClientDialog from '../AddClientDialog'
 import AddFundsDialog from '../AddFundsDialog'
 import GroupDialog from '../GroupDialog'
 import TokenBalance from '../TokenBalance'
-import { Avatar, AvatarImage } from '../ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { DialogTrigger } from '../ui/dialog'
 import {
   DropdownMenu,
@@ -22,15 +25,43 @@ import {
   DropdownMenuTrigger
 } from '../ui/dropdown-menu'
 
-const SidebarFooterContent = () => {
+interface SidebarFooterContentProps {
+  sponsorWalletId?: string
+}
+
+const SIDEBAR_FOOTER_WALLET_FRAGMENT = graphql(`
+  fragment SidebarFooterFragment on SponsorWalletDto {
+    name
+    logoUri
+  }
+`)
+
+const SidebarFooterContent = ({
+  sponsorWalletId
+}: SidebarFooterContentProps) => {
+  const { data } = useFragment({
+    fragment: SIDEBAR_FOOTER_WALLET_FRAGMENT,
+    from: {
+      __typename: 'SponsorWalletDto',
+      sponsorWalletId
+    }
+  })
   const handleLogout = () => {
     // TODO: Implement logout logic
-    console.log('Logout clicked')
   }
 
   const handleSettings = () => {
     // TODO: Implement settings navigation
   }
+
+  const walletName = data?.name || 'Sponsor Wallet'
+  const walletAvatar = data?.logoUri || undefined
+  const initials = walletName
+    .split(' ')
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
 
   return (
     <footer className="flex w-full flex-col items-center gap-2">
@@ -38,11 +69,18 @@ const SidebarFooterContent = () => {
         <DropdownMenuTrigger asChild>
           <div className="hover:bg-accent flex w-full cursor-pointer items-center gap-4 rounded-md border p-2 transition-colors">
             <Avatar className="size-10 rounded-md">
-              <AvatarImage className="rounded-none" src="/impierce-logo.jpg" />
+              <AvatarImage
+                alt={walletName}
+                className="rounded-none"
+                src={walletAvatar}
+              />
+              <AvatarFallback className="bg-primary text-primary-foreground rounded-md">
+                {initials}
+              </AvatarFallback>
             </Avatar>
 
             <div className="flex w-full flex-col gap-1 text-sm">
-              <p className="text-md font-semibold">Jelle Millenaar</p>
+              <p className="text-md font-semibold">{walletName}</p>
               <TokenBalance />
             </div>
           </div>

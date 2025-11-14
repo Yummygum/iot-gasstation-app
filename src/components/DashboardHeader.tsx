@@ -42,6 +42,15 @@ const DashboardHeader = ({
     }
   })
 
+  const walletName = data?.name || 'Sponsor Wallet'
+  const walletAvatar = data?.logoUri || undefined
+  const initials = walletName
+    .split(' ')
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+
   if (isLoading || dataState !== 'complete') {
     return <DashboardHeaderSkeleton />
   }
@@ -50,10 +59,10 @@ const DashboardHeader = ({
     <header className="flex w-full items-center gap-3">
       <Avatar className="size-12 rounded-md">
         {data.logoUri ? (
-          <AvatarImage className="rounded-none" src={data.logoUri} />
+          <AvatarImage className="rounded-none" src={walletAvatar} />
         ) : (
-          <AvatarFallback className="w-full rounded-none text-center">
-            {data.name?.[0] ?? ''}
+          <AvatarFallback className="bg-primary text-primary-foreground w-full rounded-none text-center">
+            {initials}
           </AvatarFallback>
         )}
       </Avatar>
