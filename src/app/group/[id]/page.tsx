@@ -6,6 +6,7 @@ import GroupBudgetBar from '@/components/BudgetBar/GroupBudgetBar'
 import GasChart from '@/components/Chart/GasChart'
 import ClientTable from '@/components/ClientTable/ClientTable'
 import GroupPageHeader from '@/components/GroupPageHeader'
+import StatusNotifier from '@/components/StatusNotifier'
 import GET_GROUP from '@/lib/api/queries/getGroup'
 
 interface GroupPageProps {
@@ -28,9 +29,16 @@ const GroupPage = ({ params }: GroupPageProps) => {
       <GroupPageHeader isLoading={loading} />
 
       <section className="flex flex-col gap-10 p-4">
-        {/* {data?.getGroup?.status && (
-          <StatusNotifier variant={data?.getGroup?.status?.variant} />
-        )} */}
+        {data?.getGroup?.status && (
+          <StatusNotifier
+            variant={
+              data?.getGroup?.status?.variant as
+                | 'action'
+                | 'warning'
+                | 'success'
+            }
+          />
+        )}
 
         <GroupBudgetBar groupId={id} isLoading={loading} />
 
