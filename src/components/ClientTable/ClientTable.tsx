@@ -22,7 +22,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
@@ -146,7 +145,6 @@ const columns: ColumnDef<ClientColumn>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
                 onSelect={() => {
                   if (navigator.clipboard) {
@@ -272,7 +270,7 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
         />
       </CardHeader>
-      <CardContent className="mx-6 overflow-hidden rounded-md border">
+      <CardContent className="mx-4 overflow-hidden rounded-md border px-0">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -319,7 +317,7 @@ const ClientTable = ({ groupId, groupName }: ClientTableProps) => {
           </TableBody>
         </Table>
       </CardContent>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 px-6 py-2">
         <div className="space-x-2">
           <Button
             disabled={!table.getCanPreviousPage()}

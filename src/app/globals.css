@@ -129,9 +129,9 @@
 
 @layer components {
   .glass {
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
     border-width: 1px;
     border-color: #171d2615;
-    background-color: #f1f7fe70;
+    background-color: #f1f7fe90;
   }
 }
