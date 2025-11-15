@@ -2,6 +2,7 @@
 /* eslint-disable max-statements */
 
 import { useLazyQuery, useMutation } from '@apollo/client/react'
+import { isValidIotaAddress } from '@iota/iota-sdk/utils'
 import { useForm } from '@tanstack/react-form'
 import { InfoIcon, LoaderIcon, WalletIcon } from 'lucide-react'
 import { PropsWithChildren, useMemo, useState } from 'react'
@@ -87,6 +88,12 @@ const formSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Wallet address is required',
+          path: ['walletAddress']
+        })
+      } else if (!isValidIotaAddress(value.walletAddress)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid IOTA wallet address',
           path: ['walletAddress']
         })
       }
@@ -410,8 +417,10 @@ const AddClientDialog = ({
                                       </InputGroupButton>
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[240px]">
-                                      Enter the wallet address of the client
-                                      here. It should be 64 characters long.
+                                      Enter the IOTA wallet address of the
+                                      client. Must be a valid 32-byte hex
+                                      address (64 hex characters, optionally
+                                      prefixed with 0x).
                                     </TooltipContent>
                                   </Tooltip>
                                 </InputGroupAddon>
