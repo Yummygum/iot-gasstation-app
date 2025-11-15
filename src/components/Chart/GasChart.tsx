@@ -5,7 +5,7 @@ import {
   BarChart2 as BarChartIcon,
   PieChart as PieChartIcon
 } from 'lucide-react'
-import { ComponentProps, useMemo, useState } from 'react'
+import { ComponentProps, useEffect, useMemo, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -202,6 +202,7 @@ const BarChartTooltip = ({
 const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
   const [timeRangeDays, setTimeRangeDays] = useState(30)
   const [chartType, setChartType] = useState<'bar' | 'pie'>('bar')
+  const [showAverage, setShowAverage] = useState(false)
 
   // Calculate date range for the query
   const { startDate, endDate } = useMemo(
@@ -267,6 +268,17 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
       averageValue: average
     }
   }, [transactions, isBarChart, isPieChart, startDate, endDate, timeRangeDays])
+
+  // Trigger fade-in animation after bars animate (bars take ~750ms)
+  useEffect(() => {
+    if (!loading && !hasNoData && isBarChart) {
+      setShowAverage(false)
+      const timer = setTimeout(() => setShowAverage(true), 900)
+      return () => clearTimeout(timer)
+    }
+
+    setShowAverage(false)
+  }, [chartData, loading, hasNoData, isBarChart])
 
   return (
     <Item className={twMerge('pt-0', className)} variant="outline" {...props}>
@@ -359,13 +371,15 @@ const GasChart = ({ className, groupId, ...props }: GasChartProps) => {
                 radius={[999, 999, 0, 0]}
               />
               <ReferenceLine
-                className="z-10 hidden text-left font-medium"
-                ifOverflow="extendDomain"
-                stroke="var(--muted-foreground)"
-                strokeDasharray="8 4"
+                stroke="#155dfc50"
+                strokeDasharray="8 12"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={1}
+                strokeOpacity={showAverage ? 1 : 0}
+                strokeWidth={2}
+                style={{
+                  transition: 'stroke-opacity 0.5s ease-in-out'
+                }}
                 y={averageValue}
               />
             </BarChart>
