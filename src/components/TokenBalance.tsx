@@ -1,9 +1,7 @@
 'use client'
-import { useQuery } from '@apollo/client/react'
+import { useFragment } from '@apollo/client/react'
 
-import { useApolloSubscription } from '@/hooks/useApolloSubscription'
-import GET_SPONSOR_WALLET from '@/lib/api/queries/getSponsorWallet'
-import SPONSOR_WALLET_UPDATES_SUBSCRIPTION from '@/lib/api/subscriptions/sponsorWalletUpdates'
+import { graphql } from '@/lib/api/graphql'
 
 import IOTAAmount from './IOTAAmount'
 import { Skeleton } from './ui/skeleton'
@@ -12,27 +10,27 @@ interface ITokenBalanceProps {
   hasIOTAMark?: boolean
 }
 
-const TokenBalance = ({ hasIOTAMark = true }: ITokenBalanceProps) => {
-  const { data, subscribeToMore, loading, dataState } =
-    useQuery(GET_SPONSOR_WALLET)
+const SPONSOR_WALLET_FRAGMENT = graphql(`
+  fragment SponsorWalletFragment on SponsorWalletDto {
+    sponsorWalletId
+    balance
+  }
+`)
 
-  useApolloSubscription({
-    subscribeToMore,
-    document: SPONSOR_WALLET_UPDATES_SUBSCRIPTION,
-    onUpdate: (prev, update) => ({
-      ...prev,
-      ...update.sponsorWalletUpdates
-    })
+const TokenBalance = ({ hasIOTAMark = true }: ITokenBalanceProps) => {
+  const { data, dataState } = useFragment({
+    fragment: SPONSOR_WALLET_FRAGMENT,
+    from: {
+      __typename: 'SponsorWalletDto',
+      // TODO: adjust this once we have multiple sponsor wallets
+      sponsorWalletId: 'sponsor-wallet'
+    }
   })
 
-  return loading || dataState === 'empty' ? (
+  return dataState !== 'complete' ? (
     <Skeleton className="h-5 w-full bg-white/75" />
   ) : (
-    <IOTAAmount
-      amount={data?.getSponsorWallet?.balance}
-      hasIOTAMark={hasIOTAMark}
-      size="sm"
-    />
+    <IOTAAmount amount={data?.balance} hasIOTAMark={hasIOTAMark} size="sm" />
   )
 }
 

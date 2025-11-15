@@ -6,44 +6,67 @@ import {
   ApolloNextAppProvider,
   InMemoryCache
 } from '@apollo/client-integration-nextjs'
-import { BaseHttpLink } from '@apollo/client/link/http'
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { OperationTypeNode } from 'graphql'
 import { createClient } from 'graphql-ws'
 import { PropsWithChildren } from 'react'
 
-const { NEXT_PUBLIC_API_URL, NEXT_PUBLIC_WS_URL, NODE_ENV } = process.env
+/**
+ * Validates and returns the API URL from environment variables
+ */
+function getApiUrl(): string {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim()
 
-// Shared options for the HTTP and WebSocket connections
-const linkOptions: BaseHttpLink.Shared.Options = {
-  // headers: {
-  //   'X-API-Key': NEXT_PUBLIC_API_KEY ?? ''
-  // },
-  uri: NEXT_PUBLIC_API_URL ?? 'https://sponsoring.dev2.impierce.com/graphql',
-  fetchOptions: {
-    ...(NODE_ENV === 'development' ? { cache: 'no-store' } : {})
-  }
-}
-
-function makeClient() {
-  if (!NEXT_PUBLIC_API_URL) {
+  if (!apiUrl) {
     throw new Error('NEXT_PUBLIC_API_URL is not set')
   }
 
-  if (!NEXT_PUBLIC_WS_URL) {
+  if (!apiUrl.startsWith('http://') && !apiUrl.startsWith('https://')) {
+    throw new Error(
+      `NEXT_PUBLIC_API_URL must start with http:// or https://. Got: ${apiUrl}`
+    )
+  }
+
+  return apiUrl
+}
+
+/**
+ * Validates and returns the WebSocket URL from environment variables
+ */
+function getWebSocketUrl(): string {
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL?.trim()
+
+  if (!wsUrl) {
     throw new Error('NEXT_PUBLIC_WS_URL is not set')
   }
 
-  // Initialize the links for the HTTP and WebSocket connections
+  if (!wsUrl.startsWith('ws://') && !wsUrl.startsWith('wss://')) {
+    throw new Error(
+      `NEXT_PUBLIC_WS_URL must start with ws:// or wss://. Got: ${wsUrl}`
+    )
+  }
+
+  return wsUrl
+}
+
+function makeClient() {
+  // Access environment variables inside the function to ensure they're available at runtime
+  const { NODE_ENV } = process.env
+
+  // Get validated API URL
+  const apiUrl = getApiUrl()
+
+  // Initialize the HTTP link with explicit URI
   const httpLink = new HttpLink({
-    uri: NEXT_PUBLIC_API_URL,
-    ...linkOptions
+    uri: apiUrl,
+    fetchOptions: {
+      ...(NODE_ENV === 'development' ? { cache: 'default' } : {})
+    }
   })
 
   const wsLink = new GraphQLWsLink(
     createClient({
-      ...linkOptions,
-      url: NEXT_PUBLIC_WS_URL
+      url: getWebSocketUrl()
     })
   )
 
@@ -67,8 +90,14 @@ function makeClient() {
         GroupDto: {
           keyFields: ['groupId']
         },
-        clientDto: {
+        ClientDto: {
           keyFields: ['clientId']
+        },
+        SponsorWalletDto: {
+          keyFields: ['sponsorWalletId']
+        },
+        ConversionRatesDto: {
+          keyFields: ['eurToIot', 'usdToIot']
         }
       }
     }),

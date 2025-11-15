@@ -7,7 +7,9 @@ import GasChart from '@/components/Chart/GasChart'
 import ClientTable from '@/components/ClientTable/ClientTable'
 import GroupPageHeader from '@/components/GroupPageHeader'
 import StatusNotifier from '@/components/StatusNotifier'
+import { useApolloSubscription } from '@/hooks/useApolloSubscription'
 import GET_GROUP from '@/lib/api/queries/getGroup'
+import GROUP_UPDATES_SUBSCRIPTION from '@/lib/api/subscriptions/groupUpdates'
 
 interface GroupPageProps {
   params: Promise<{
@@ -18,10 +20,19 @@ interface GroupPageProps {
 const GroupPage = ({ params }: GroupPageProps) => {
   const { id } = use(params)
 
-  const { data, loading, dataState } = useQuery(GET_GROUP, {
+  const { data, loading, dataState, subscribeToMore } = useQuery(GET_GROUP, {
     variables: {
       groupId: id
     }
+  })
+
+  useApolloSubscription({
+    subscribeToMore,
+    document: GROUP_UPDATES_SUBSCRIPTION,
+    onUpdate: (prev, update) => ({
+      ...prev,
+      ...update.groupUpdates
+    })
   })
 
   const isLoading = loading || dataState !== 'complete'

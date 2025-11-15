@@ -90,6 +90,7 @@ const SettingsDialog = ({ children }: SettingsDialogProps) => {
     })
     if (updateData?.updateSponsorWallet) {
       toast.success('User updated successfully')
+      setIsOpen(false)
     }
   }
 
